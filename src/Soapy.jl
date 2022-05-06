@@ -1,9 +1,7 @@
 module Soapy
 
-using JuMP, GLPK
+include("recipes.jl")
 
-include("oils.jl")
-
-println(load_oils())
-
+@time r = RecipeCalculator()
+@time simulate(r)
 end

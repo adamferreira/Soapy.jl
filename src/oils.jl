@@ -26,6 +26,19 @@ end
 FATTY_ACIDS = Dict(zip([string(i) for i in instances(FattyAcid)], [Int64(i) for i in instances(FattyAcid)]))
 QUALITIES = Dict(zip([string(i) for i in instances(Quality)], [Int64(i) for i in instances(Quality)]))
 
+function qualities()::Vector{String}
+    return collect(keys(QUALITIES))
+end
+
+function recommended_qualities()::Dict{String, Pair{Float64, Float64}}
+    return Dict(
+        "Hardness" => (29.0 => 54.0),
+        "Cleansing" => (12.0 => 22.0),
+        "Conditioning" => (44.0 => 69.0),
+        "Bubbly" => (14.0 => 46.0),
+        "Creamy" => (16.0 => 48.0),
+    )
+end
 
 # Matrix giving ffaty acid contribution to a soap quality
 # If M[f, Q] = 1 then fatty acid f contributes to the quality f of the soap
@@ -62,12 +75,12 @@ mutable struct Oil
     fa_composition::Dict{String,Float64}
 end
 
-function quality_contribution(fatty_acid::String, quality::String)
+function quality_contribution(fatty_acid::String, quality::String)::Float64
     return QUALITY_MATRIX[FATTY_ACIDS[fatty_acid]][QUALITIES[quality]]
 end
 
 
-function load_oils()
+function load_oils()::Vector{Oil}
     if !isfile(OILS_FILE)
         throw(error("Cannot find oil file $OILS_FILE"))
     end
