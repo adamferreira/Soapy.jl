@@ -52,6 +52,8 @@ QUALITY_MATRIX = [
 # https://www.fromnaturewithlove.com/resources/sapon.asp
 mutable struct Oil
     name::String
+    # Saponification index
+    sap::Pair{Int64, Int64}
     # Saponification index when using Lye
     sap_naoh::Float64
     # When using KOH
@@ -59,7 +61,6 @@ mutable struct Oil
     # Fatty Acid Compostion (sum = 1.0)
     fa_composition::Dict{String,Float64}
 end
-
 
 function quality_contribution(fatty_acid::String, quality::String)
     return QUALITY_MATRIX[FATTY_ACIDS[fatty_acid]][QUALITIES[quality]]
@@ -73,9 +74,11 @@ function load_oils()
     json = JSON.parsefile(OILS_FILE)
     oils = Vector{Oil}()
     for o in json
+        sap = split(o["saponification"]["value"], "-")
         push!(oils, 
             Oil(
                 o["name"], 
+                Pair{UInt64, UInt64}(parse(Int64, sap[1]), parse(Int64, sap[2])),
                 o["saponification"]["NaOH"],
                 o["saponification"]["KOH"],
                 o["fatty-acid-composition"],
