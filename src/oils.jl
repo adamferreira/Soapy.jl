@@ -2,7 +2,7 @@ using JSON
 
 export load_oils
 
-OILS_FILE = joinpath(@__DIR__, "..", "data", "oils.json")
+OILS_FILE = joinpath(@__DIR__, "..", "data", "oils2.json")
 
 @enum FattyAcid begin
     Lauric = 1	 
@@ -63,6 +63,7 @@ QUALITY_MATRIX = [
 ]
 
 # https://www.fromnaturewithlove.com/resources/sapon.asp
+# http://www.certified-lye.com/lye-soap.html#:~:text=Because%20the%20water%20is%20used,of%20lye%20from%20the%20result.
 mutable struct Oil
     name::String
     # Saponification index
@@ -72,11 +73,15 @@ mutable struct Oil
     # When using KOH
     sap_koh::Float64
     # Fatty Acid Compostion (sum = 1.0)
-    fa_composition::Dict{String,Float64}
+    fa_composition::Dict{String, Float64}
 end
 
 function quality_contribution(fatty_acid::String, quality::String)::Float64
     return QUALITY_MATRIX[FATTY_ACIDS[fatty_acid]][QUALITIES[quality]]
+end
+
+function fatty_contribution(quality::String)::Vector{Float64}
+    return [ quality_contribution(f, quality) for f in collect(keys(FATTY_ACIDS))]
 end
 
 
