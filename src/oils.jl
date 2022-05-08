@@ -2,7 +2,7 @@ using JSON
 
 export load_oils
 
-OILS_FILE = joinpath(@__DIR__, "..", "data", "oils2.json")
+OILS_FILE = joinpath(@__DIR__, "..", "data", "oils_common.json")
 
 @enum FattyAcid begin
     Lauric = 1	 
@@ -81,7 +81,7 @@ QUALITY_MATRIX = [
 ]
 
 # https://www.fromnaturewithlove.com/resources/sapon.asp
-# http://www.certified-lye.com/lye-soap.html#:~:text=Because%20the%20water%20is%20used,of%20lye%20from%20the%20result.
+# http://www.certified-lye.com/lye-soap.html#:~:text=Because%20the%20water%20is%20used,of%20lye%20from%20the%20result
 mutable struct Oil
     name::String
     # Saponification index

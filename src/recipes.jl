@@ -39,7 +39,11 @@ function print_ingredient(name, value, unit = "", tab_lvl = 1)
     println(tab, name, " = ", round(value, digits = 2), unit)
 end
 
-function simulate(r::RecipeCalculator)
+function maximise_quality(r::RecipeCalculator, quality::String)
+    return simulate(r, quality)
+end
+
+function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     recipe = Model(GLPK.Optimizer)
 
     soap_weight = r.target_weight
@@ -107,7 +111,7 @@ function simulate(r::RecipeCalculator)
 
         # Else
         # In the data the fatty acid content of an oil if given in % (may not add up to 100)
-        # The fatty acid contribution to the quality is (true|false) * fatty_acid_content_%
+        # The fatty acid contribution to the quality is quality_contribution * fatty_acid_content_%
         fatty_acid_proportions = [ QUALITY_MATRIX[FATTY_ACIDS[f.first]][quality_key] * (f.second * 0.01) for f in oil.fa_composition]
         # The results here is a quality value in grams as v_oil_amout is in grams and fatty_acid_proportions in per unit
         return sum(v_oil_amout * fatty_acid_proportions)
@@ -130,10 +134,15 @@ function simulate(r::RecipeCalculator)
     # Objective
     #---------------------------
     # Maximise INS score
-    @objective(recipe, Max, v_qualities[Int64(INS::Quality)])
+    @objective(recipe, Max, v_qualities[quality_key(quality_to_optimize)])
 
     # Solve the problem
-    optimize!(recipe)
+    try
+        optimize!(recipe)
+    catch e
+        println("Cannot compute a recipe satisfying your quality requirements")
+        return
+    end
 
     # Retrive solution
     oils_in_recipe = Vector{Int64}()
@@ -145,7 +154,7 @@ function simulate(r::RecipeCalculator)
 
     # Display found recipe
     println("Soap composition : ")
-    println("\t", "Oils : ")
+    println("\t", "Oils (", Int64(sum(value.(v_is_oil_present))) ,") : ")
     for i in oils_in_recipe
         print_ingredient(r.oils[i].name, value(v_oil_amounts[i]), "g", 2)
     end
@@ -160,4 +169,6 @@ function simulate(r::RecipeCalculator)
     for q in qualities()
         print_ingredient(q, 100.0 * value(v_qualities[quality_key(q)] / sum(value.(v_oil_amounts))))
     end
+
+    println(value(v_qualities[7]))
 end
