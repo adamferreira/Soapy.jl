@@ -8,9 +8,9 @@ mutable struct RecipeCalculator
     target_weight::Float64 # in gram
     target_qualities::Dict{String, Pair{Float64, Float64}}
     c_max_oils::Int64
-    water_to_oil_ratio::Pair{Float64, Float64} # In percent of mass (quadratic if variable)
-    super_fat::Pair{Float64, Float64} # In ratio of total fat
-    fragrance::Pair{Float64, Float64} # Ratio total fat (usally 3-4% of total fat weight)
+    lye_concentration_percent::Float64 # Lye percent of water + lye solution
+    super_fat_percent::Float64 # In percent of total fat
+    fragrance_percent::Float64 # Ratio total fat (usally 3-4% of total fat weight)
 
     function RecipeCalculator(oil_database::String)
         oils = load_oils(oil_database) 
@@ -18,11 +18,11 @@ mutable struct RecipeCalculator
                 oils,
                 1000.0,
                 #0.0 => typemax(Float64),
-                Dict((q => (0.0 => 100.0) for q in qualities())),
+                Dict((q => (0.0 => 1000.0) for q in qualities())),
                 length(oils),
-                (0.3 => 0.3),
-                (0.05 => 0.05),
-                (0.04 => 0.04)
+                30.0,
+                5.0,
+                4.0
             )
     end
 end
@@ -47,8 +47,9 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     recipe = Model(GLPK.Optimizer)
 
     soap_weight = r.target_weight
-    fragrance_ratio = r.fragrance.first
-    super_fat = r.super_fat.first # TODO
+    fragrance_ratio = r.fragrance_percent / 100.0
+    super_fat_ratio = r.super_fat_percent / 100.0
+    lye_concentration_ratio = r.lye_concentration_percent / 100.0
     qualities_lb = [r.target_qualities[q].first for q in qualities()]
     qualities_ub = [r.target_qualities[q].second for q in qualities()]
 
@@ -88,11 +89,14 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     @constraint(recipe, c_max_oils, 1.0 <= sum(v_is_oil_present) <= r.c_max_oils)
 
     # (Amount of Fat) × (Saponification Value of the Fat) = (Amount of Lye)
-    # (Amount of Lye) ÷ 0.3 = (Total Weight of Lye Water Solution)
+    # (Amount of Lye) ÷ 0.3 = (Total Weight of Lye Water Solution)  (if lye+water solution is 30% concentrated)
     # (Total Weight of Lye Water Solution) − (Amount of Lye) = (Amount of Water)
-    @constraint(recipe, c_total_lye_amount, v_lye_amounts .== v_oil_amounts .* [o.sap_naoh for o in r.oils])
-    # Lye concentration if assumed to be 30%
-    @constraint(recipe, c_total_water_amount, v_water_amounts .== (v_lye_amounts / 0.3) .- v_lye_amounts) # means water to lye ratio = 2.3333:1
+    # Super fat is the percentage of fat we wish to not saponify 
+    # So instead of using the amount of lye for the saponification 100% of the oil
+    # We will compute lye for x = total_fat_weight * (1 - super_fat_percent/100.0)  grams of fat
+    @constraint(recipe, c_total_lye_amount, v_lye_amounts .== (v_oil_amounts .* [o.sap_naoh for o in r.oils]) * (1.0 - super_fat_ratio))
+    # Lye amounts calculation
+    @constraint(recipe, c_total_water_amount, v_water_amounts .== (v_lye_amounts / lye_concentration_ratio) .- v_lye_amounts) # means water to lye ratio = 2.3333:1
 
     # Constraint for total weight
     @constraint(recipe, c_total_weight, sum(v_oil_amounts) + sum(v_lye_amounts) + sum(v_water_amounts) + fragrance_ratio * sum(v_oil_amounts) == soap_weight )
@@ -163,6 +167,11 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
 
     print_ingredient("Water", sum(value.(v_water_amounts)), "g")
     print_ingredient("Lye", sum(value.(v_lye_amounts)), "g")
+    print_ingredient("(Lye concentration", lye_concentration_ratio * 100.0, "% of total Water + Lye solution)")
+    # fragrance_g = fragrance_ratio * sum(value.(v_oil_amounts))
+    # fragrance_g_per_kg = fragrance_g * (1.0 / sum(value.(v_oil_amounts) / soap_weight), digits = 2) 
+    # fragrance_g_per_kg = (fragrance_ratio * sum(value.(v_oil_amounts))) * (soap_weight / sum(value.(v_oil_amounts)))
+    # fragrance_g_per_kg = fragrance_ratio * soap_weight
     print_ingredient("Fragrance", fragrance_ratio * sum(value.(v_oil_amounts)), "g")
     print_ingredient("Total", soap_weight, "g")
 
@@ -180,6 +189,8 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
 
         println("\t", q, " = ", quality_val, " (", recommended_min, ", ", recommended_max ,")", warning)
     end
+    print_ingredient("Super Fat", 100.0 * super_fat_ratio, "%")
+
     #quality_to_optimize = Int64(Cleansing::Quality)
     #println(value(qualities_lb[quality_to_optimize]), "\t", value(qualities_lb[quality_to_optimize]) * sum(value.(v_oil_amounts)))
     #println(value(qualities_ub[quality_to_optimize]), "\t", value(qualities_ub[quality_to_optimize]) * sum(value.(v_oil_amounts)))
