@@ -122,11 +122,11 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
         # The quality score of an oil mix is computed as follow
         # quality_content_of_the_mix (in grams) / total_amount_of_oils (in grams
         # So whe sould satisfy :
-        # min_q_target <= q_amout / fat_amount <= max_q_target
-        # min_q_target * fat_amount <= q_amout <= max_q_target * fat_amount
+        # min_q_target <= 100 * q_amout / fat_amount <= max_q_target
+        # min_q_target * fat_amount <= 100 * q_amout <= max_q_target * fat_amount
         push!(c_qualities, @constraint(recipe, v_qualities[q] == quality_value_expr))
-        @constraint(recipe,  v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
-        @constraint(recipe,  v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
+        @constraint(recipe,  100.0 * v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
+        @constraint(recipe,  100.0 * v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
     end
 
 
@@ -169,6 +169,4 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     for q in qualities()
         print_ingredient(q, 100.0 * value(v_qualities[quality_key(q)] / sum(value.(v_oil_amounts))))
     end
-
-    println(value(v_qualities[7]))
 end
