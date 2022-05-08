@@ -21,6 +21,8 @@ end
     Bubbly
     Creamy
     Conditioning
+    Iodine
+    INS
 end
 
 FATTY_ACIDS = Dict(zip([string(i) for i in instances(FattyAcid)], [Int64(i) for i in instances(FattyAcid)]))
@@ -30,6 +32,14 @@ function qualities()::Vector{String}
     return collect(keys(QUALITIES))
 end
 
+function quality_key(quality::String)
+    return QUALITIES[quality]
+end
+
+function fa_key(fatty_acid::String)
+    return FATTY_ACIDS[fatty_acid]
+end
+
 function recommended_qualities()::Dict{String, Pair{Float64, Float64}}
     return Dict(
         "Hardness" => (29.0 => 54.0),
@@ -37,6 +47,8 @@ function recommended_qualities()::Dict{String, Pair{Float64, Float64}}
         "Conditioning" => (44.0 => 69.0),
         "Bubbly" => (14.0 => 46.0),
         "Creamy" => (16.0 => 48.0),
+        "Iodine" => (41.0 => 70.0),
+        "INS" => (136.0 => 170.0),
     )
 end
 
@@ -51,6 +63,10 @@ end
 # Oleic         No          No          No      No      Yes
 # Linoleic      No          No          No      No      Yes
 # Linolenic     No          No          No      No      Yes
+# http://soapcalc.net/info/SoapQualities.asp
+# Fatty acids do NOT contribute to Iodine and INS, those are calculated before hands
+# Iodine        No          No          No      No      No
+# INS           No          No          No      No      No
 QUALITY_MATRIX = [
     [1.0, 1.0, 1.0, 0.0, 0.0],
     [1.0, 1.0, 1.0, 0.0, 0.0],
@@ -60,6 +76,8 @@ QUALITY_MATRIX = [
     [0.0, 0.0, 0.0, 0.0, 1.0],
     [0.0, 0.0, 0.0, 0.0, 1.0],
     [0.0, 0.0, 0.0, 0.0, 1.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 0.0],
 ]
 
 # https://www.fromnaturewithlove.com/resources/sapon.asp
@@ -72,6 +90,10 @@ mutable struct Oil
     sap_naoh::Float64
     # When using KOH
     sap_koh::Float64
+    # Iodine index content
+    iodine::Float64
+    # INS index = overall quality
+    ins::Float64
     # Fatty Acid Compostion (sum = 1.0)
     fa_composition::Dict{String, Float64}
 end
@@ -92,13 +114,15 @@ function load_oils()::Vector{Oil}
     json = JSON.parsefile(OILS_FILE)
     oils = Vector{Oil}()
     for o in json
-        sap = split(o["saponification"]["value"], "-")
+        sap = split(o["saponification"]["SAP-value"], "-")
         push!(oils, 
             Oil(
                 o["name"], 
                 Pair{UInt64, UInt64}(parse(Int64, sap[1]), parse(Int64, sap[2])),
                 o["saponification"]["NaOH"],
                 o["saponification"]["KOH"],
+                o["saponification"]["Iodine"],
+                o["saponification"]["INS"],
                 o["fatty-acid-composition"],
             )
         )
