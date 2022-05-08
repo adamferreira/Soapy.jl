@@ -1,25 +1,5 @@
 [
     {
-        "name": "Linseed oil, flax",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.135,
-            "KOH": 0.19,
-            "Iodine": 180.0,
-            "INS": -6.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 6.0,
-            "Stearic": 3.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 27.0,
-            "Linoleic": 13.0,
-            "Linolenic": 50.0
-        }
-    },
-    {
         "name": "Hemp oil",
         "saponification": {
             "SAP-value": "0-0",
@@ -260,46 +240,6 @@
         }
     },
     {
-        "name": "Wheat germ oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.13,
-            "KOH": 0.183,
-            "Iodine": 128.0,
-            "INS": 58.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 17.0,
-            "Stearic": 2.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 17.0,
-            "Linoleic": 58.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Cherry kernel oil avium",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.135,
-            "KOH": 0.19,
-            "Iodine": 128.0,
-            "INS": 62.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 8.0,
-            "Stearic": 3.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 31.0,
-            "Linoleic": 54.0,
-            "Linolenic": 11.0
-        }
-    },
-    {
         "name": "Corn oil",
         "saponification": {
             "SAP-value": "0-0",
@@ -400,26 +340,6 @@
         }
     },
     {
-        "name": "Peach kernel oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.136,
-            "KOH": 0.191,
-            "Iodine": 108.0,
-            "INS": 87.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 6.0,
-            "Stearic": 2.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 65.0,
-            "Linoleic": 25.0,
-            "Linolenic": 1.0
-        }
-    },
-    {
         "name": "Rapeseed oil",
         "saponification": {
             "SAP-value": "0-0",
@@ -437,46 +357,6 @@
             "Oleic": 0.0,
             "Linoleic": 0.0,
             "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Jatropha oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.138,
-            "KOH": 0.193,
-            "Iodine": 102.0,
-            "INS": 91.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 9.0,
-            "Stearic": 7.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 44.0,
-            "Linoleic": 34.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Mustard oil, kachi gha",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.123,
-            "KOH": 0.173,
-            "Iodine": 101.0,
-            "INS": 72.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 2.0,
-            "Stearic": 2.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 18.0,
-            "Linoleic": 14.0,
-            "Linolenic": 9.0
         }
     },
     {
@@ -660,26 +540,6 @@
         }
     },
     {
-        "name": "Coffee bean oil, roasted",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.128,
-            "KOH": 0.18,
-            "Iodine": 87.0,
-            "INS": 93.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 40.0,
-            "Stearic": 0.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 8.0,
-            "Linoleic": 38.0,
-            "Linolenic": 2.0
-        }
-    },
-    {
         "name": "Avocado oil",
         "saponification": {
             "SAP-value": "0-0",
@@ -700,26 +560,6 @@
         }
     },
     {
-        "name": "Coffee bean oil, green",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.132,
-            "KOH": 0.182,
-            "Iodine": 85.0,
-            "INS": 100.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 38.0,
-            "Stearic": 8.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 9.0,
-            "Linoleic": 39.0,
-            "Linolenic": 2.0
-        }
-    },
-    {
         "name": "Olive oil",
         "saponification": {
             "SAP-value": "0-0",
@@ -737,26 +577,6 @@
             "Oleic": 69.0,
             "Linoleic": 12.0,
             "Linolenic": 1.0
-        }
-    },
-    {
-        "name": "Karanja oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.13,
-            "KOH": 0.183,
-            "Iodine": 85.0,
-            "INS": 98.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 6.0,
-            "Stearic": 6.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 58.0,
-            "Linoleic": 15.0,
-            "Linolenic": 0.0
         }
     },
     {
@@ -820,26 +640,6 @@
         }
     },
     {
-        "name": "Jojoba liquid wax ester",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.066,
-            "KOH": 0.092,
-            "Iodine": 83.0,
-            "INS": 11.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 0.0,
-            "Stearic": 0.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 12.0,
-            "Linoleic": 0.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
         "name": "Soybean, 27.5% hydro",
         "saponification": {
             "SAP-value": "0-0",
@@ -876,46 +676,6 @@
             "Ricinoleic": 0.0,
             "Oleic": 59.0,
             "Linoleic": 2.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Baobab oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.143,
-            "KOH": 0.2,
-            "Iodine": 75.0,
-            "INS": 125.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 1.0,
-            "Palmitic": 24.0,
-            "Stearic": 4.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 37.0,
-            "Linoleic": 28.0,
-            "Linolenic": 2.0
-        }
-    },
-    {
-        "name": "Marula Oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.137,
-            "KOH": 0.192,
-            "Iodine": 73.0,
-            "INS": 119.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 11.0,
-            "Stearic": 7.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 75.0,
-            "Linoleic": 4.0,
             "Linolenic": 0.0
         }
     },
@@ -960,46 +720,6 @@
         }
     },
     {
-        "name": "Mowrah butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.138,
-            "KOH": 0.194,
-            "Iodine": 62.0,
-            "INS": 132.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 24.0,
-            "Stearic": 22.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 36.0,
-            "Linoleic": 15.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Mango seed oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.135,
-            "KOH": 0.19,
-            "Iodine": 60.0,
-            "INS": 130.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 8.0,
-            "Stearic": 27.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 52.0,
-            "Linoleic": 8.0,
-            "Linolenic": 1.0
-        }
-    },
-    {
         "name": "Shea butter",
         "saponification": {
             "SAP-value": "0-0",
@@ -1040,186 +760,6 @@
         }
     },
     {
-        "name": "Red palm butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.142,
-            "KOH": 0.199,
-            "Iodine": 53.0,
-            "INS": 145.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 1.0,
-            "Palmitic": 44.0,
-            "Stearic": 5.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 39.0,
-            "Linoleic": 10.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Palm stearin",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.142,
-            "KOH": 0.199,
-            "Iodine": 48.0,
-            "INS": 151.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 2.0,
-            "Palmitic": 60.0,
-            "Stearic": 5.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 26.0,
-            "Linoleic": 7.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Saw palmetto extract",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.164,
-            "KOH": 0.23,
-            "Iodine": 45.0,
-            "INS": 185.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 29.0,
-            "Myristic": 11.0,
-            "Palmitic": 8.0,
-            "Stearic": 2.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 35.0,
-            "Linoleic": 4.0,
-            "Linolenic": 1.0
-        }
-    },
-    {
-        "name": "Mango seed butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.136,
-            "KOH": 0.191,
-            "Iodine": 45.0,
-            "INS": 146.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 7.0,
-            "Stearic": 42.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 45.0,
-            "Linoleic": 3.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Saw palmetto oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.157,
-            "KOH": 0.22,
-            "Iodine": 44.0,
-            "INS": 176.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 29.0,
-            "Myristic": 13.0,
-            "Palmitic": 9.0,
-            "Stearic": 2.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 21.0,
-            "Linoleic": 4.0,
-            "Linolenic": 1.0
-        }
-    },
-    {
-        "name": "Kpangnan butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.136,
-            "KOH": 0.191,
-            "Iodine": 42.0,
-            "INS": 149.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 6.0,
-            "Stearic": 44.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 49.0,
-            "Linoleic": 1.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Sal butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.132,
-            "KOH": 0.185,
-            "Iodine": 39.0,
-            "INS": 146.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 6.0,
-            "Stearic": 44.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 40.0,
-            "Linoleic": 2.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Capuaca butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.132,
-            "KOH": 0.185,
-            "Iodine": 38.0,
-            "INS": 155.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 0.0,
-            "Stearic": 0.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 0.0,
-            "Linoleic": 0.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Ucuuba butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.146,
-            "KOH": 0.205,
-            "Iodine": 38.0,
-            "INS": 167.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 0.0,
-            "Stearic": 31.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 44.0,
-            "Linoleic": 5.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
         "name": "Cocoa butter",
         "saponification": {
             "SAP-value": "0-0",
@@ -1236,126 +776,6 @@
             "Ricinoleic": 0.0,
             "Oleic": 35.0,
             "Linoleic": 3.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Kokum butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.135,
-            "KOH": 0.19,
-            "Iodine": 35.0,
-            "INS": 155.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 4.0,
-            "Stearic": 56.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 36.0,
-            "Linoleic": 1.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Illipe butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.132,
-            "KOH": 0.185,
-            "Iodine": 33.0,
-            "INS": 152.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 17.0,
-            "Stearic": 45.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 35.0,
-            "Linoleic": 0.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Cohune oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.146,
-            "KOH": 0.205,
-            "Iodine": 30.0,
-            "INS": 175.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 51.0,
-            "Myristic": 13.0,
-            "Palmitic": 8.0,
-            "Stearic": 3.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 18.0,
-            "Linoleic": 3.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Palm kernel oil flakes",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.192,
-            "KOH": 0.275,
-            "Iodine": 20.0,
-            "INS": 183.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 0.0,
-            "Myristic": 0.0,
-            "Palmitic": 0.0,
-            "Stearic": 0.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 0.0,
-            "Linoleic": 0.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Babassu oil",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.175,
-            "KOH": 0.245,
-            "Iodine": 15.0,
-            "INS": 230.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 50.0,
-            "Myristic": 20.0,
-            "Palmitic": 11.0,
-            "Stearic": 4.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 10.0,
-            "Linoleic": 0.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Tucuma seed butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.17,
-            "KOH": 0.238,
-            "Iodine": 13.0,
-            "INS": 175.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 48.0,
-            "Myristic": 23.0,
-            "Palmitic": 6.0,
-            "Stearic": 0.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 13.0,
-            "Linoleic": 0.0,
             "Linolenic": 0.0
         }
     },
@@ -1395,46 +815,6 @@
             "Stearic": 3.0,
             "Ricinoleic": 0.0,
             "Oleic": 0.0,
-            "Linoleic": 2.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Coconut oil, fractionated",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.232,
-            "KOH": 0.325,
-            "Iodine": 1.0,
-            "INS": 324.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 2.0,
-            "Myristic": 1.0,
-            "Palmitic": 0.0,
-            "Stearic": 0.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 0.0,
-            "Linoleic": 0.0,
-            "Linolenic": 0.0
-        }
-    },
-    {
-        "name": "Aloe Butter",
-        "saponification": {
-            "SAP-value": "0-0",
-            "NaOH": 0.171,
-            "KOH": 0.24,
-            "Iodine": 0.0,
-            "INS": 249.0
-        },
-        "fatty-acid-composition": {
-            "Lauric": 45.0,
-            "Myristic": 18.0,
-            "Palmitic": 8.0,
-            "Stearic": 3.0,
-            "Ricinoleic": 0.0,
-            "Oleic": 7.0,
             "Linoleic": 2.0,
             "Linolenic": 0.0
         }

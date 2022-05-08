@@ -2,7 +2,7 @@ using JSON
 
 export load_oils
 
-OILS_FILE = joinpath(@__DIR__, "..", "data", "oils_common.json")
+OILS_DIR = joinpath(@__DIR__, "..", "data")
 
 @enum FattyAcid begin
     Lauric = 1	 
@@ -29,7 +29,11 @@ FATTY_ACIDS = Dict(zip([string(i) for i in instances(FattyAcid)], [Int64(i) for 
 QUALITIES = Dict(zip([string(i) for i in instances(Quality)], [Int64(i) for i in instances(Quality)]))
 
 function qualities()::Vector{String}
-    return collect(keys(QUALITIES))
+    q = collect(keys(QUALITIES))
+    for pair in QUALITIES
+        q[pair.second] = pair.first
+    end
+    return q
 end
 
 function quality_key(quality::String)
@@ -63,21 +67,21 @@ end
 # Oleic         No          No          No      No      Yes
 # Linoleic      No          No          No      No      Yes
 # Linolenic     No          No          No      No      Yes
+
+
 # http://soapcalc.net/info/SoapQualities.asp
 # Fatty acids do NOT contribute to Iodine and INS, those are calculated before hands
 # Iodine        No          No          No      No      No
 # INS           No          No          No      No      No
 QUALITY_MATRIX = [
-    [1.0, 1.0, 1.0, 0.0, 0.0],
-    [1.0, 1.0, 1.0, 0.0, 0.0],
-    [1.0, 0.0, 0.0, 1.0, 0.0],
-    [1.0, 0.0, 0.0, 1.0, 0.0],
-    [0.0, 0.0, 1.0, 1.0, 1.0],
-    [0.0, 0.0, 0.0, 0.0, 1.0],
-    [0.0, 0.0, 0.0, 0.0, 1.0],
-    [0.0, 0.0, 0.0, 0.0, 1.0],
-    [0.0, 0.0, 0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.0, 0.0, 0.0],
+    [1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+    [1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+    [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+    [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
 ]
 
 # https://www.fromnaturewithlove.com/resources/sapon.asp
@@ -107,11 +111,12 @@ function fatty_contribution(quality::String)::Vector{Float64}
 end
 
 
-function load_oils()::Vector{Oil}
-    if !isfile(OILS_FILE)
-        throw(error("Cannot find oil file $OILS_FILE"))
+function load_oils(oil_database::String)::Vector{Oil}
+    oil_file = joinpath(OILS_DIR, oil_database)
+    if !isfile(oil_file)
+        throw(error("Cannot find oil file $oil_file"))
     end
-    json = JSON.parsefile(OILS_FILE)
+    json = JSON.parsefile(oil_file)
     oils = Vector{Oil}()
     for o in json
         sap = split(o["saponification"]["SAP-value"], "-")

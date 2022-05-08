@@ -12,8 +12,8 @@ mutable struct RecipeCalculator
     super_fat::Pair{Float64, Float64} # In ratio of total fat
     fragrance::Pair{Float64, Float64} # Ratio total fat (usally 3-4% of total fat weight)
 
-    function RecipeCalculator()
-        oils = load_oils() 
+    function RecipeCalculator(oil_database::String)
+        oils = load_oils(oil_database) 
         return new(
                 oils,
                 1000.0,
@@ -49,8 +49,8 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     soap_weight = r.target_weight
     fragrance_ratio = r.fragrance.first
     super_fat = r.super_fat.first # TODO
-    qualities_lb = [q.second.first for q in r.target_qualities]
-    qualities_ub = [q.second.second for q in r.target_qualities]
+    qualities_lb = [r.target_qualities[q].first for q in qualities()]
+    qualities_ub = [r.target_qualities[q].second for q in qualities()]
 
     println("Mixing up to $(r.c_max_oils) oils together out of $(length(r.oils))")
     println("Will keep soap mass at $(soap_weight)g ")
@@ -101,18 +101,19 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     c_qualities = Vector()
     function oil_quality_equation(oil, v_oil_amout, quality_key)
         # Iodine and INS are data and not calcutaled quatilies
+        # Just give those quality a score
         if quality_key == Int64(Iodine::Quality)
-            return v_oil_amout * oil.iodine * 0.01
+            return v_oil_amout * oil.iodine
         end
 
         if quality_key == Int64(INS::Quality)
-            return v_oil_amout * oil.ins * 0.01
+            return v_oil_amout * oil.ins
         end
 
         # Else
         # In the data the fatty acid content of an oil if given in % (may not add up to 100)
         # The fatty acid contribution to the quality is quality_contribution * fatty_acid_content_%
-        fatty_acid_proportions = [ QUALITY_MATRIX[FATTY_ACIDS[f.first]][quality_key] * (f.second * 0.01) for f in oil.fa_composition]
+        fatty_acid_proportions = [ QUALITY_MATRIX[FATTY_ACIDS[f.first]][quality_key] * (f.second) for f in oil.fa_composition]
         # The results here is a quality value in grams as v_oil_amout is in grams and fatty_acid_proportions in per unit
         return sum(v_oil_amout * fatty_acid_proportions)
     end
@@ -120,13 +121,13 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     for q = s_qualtities_set
         quality_value_expr = sum([oil_quality_equation(r.oils[o], v_oil_amounts[o], q) for o = s_oils_set]) # in grams
         # The quality score of an oil mix is computed as follow
-        # quality_content_of_the_mix (in grams) / total_amount_of_oils (in grams
+        # quality_content_of_the_mix (in grams) / total_amount_of_oils (in grams)
         # So whe sould satisfy :
-        # min_q_target <= 100 * q_amout / fat_amount <= max_q_target
-        # min_q_target * fat_amount <= 100 * q_amout <= max_q_target * fat_amount
+        # min_q_target <= q_amout / fat_amount <= max_q_target
+        # min_q_target * fat_amount <= q_amout <= max_q_target * fat_amount
         push!(c_qualities, @constraint(recipe, v_qualities[q] == quality_value_expr))
-        @constraint(recipe,  100.0 * v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
-        @constraint(recipe,  100.0 * v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
+        @constraint(recipe,  v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
+        @constraint(recipe,  v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
     end
 
 
@@ -165,8 +166,22 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     print_ingredient("Fragrance", fragrance_ratio * sum(value.(v_oil_amounts)), "g")
     print_ingredient("Total", soap_weight, "g")
 
-    println("Soap quality : ")
+    println("Soap quality (Recommended) : ")
     for q in qualities()
-        print_ingredient(q, 100.0 * value(v_qualities[quality_key(q)] / sum(value.(v_oil_amounts))))
+        quality_val = Int64(floor(value(v_qualities[quality_key(q)]) / sum(value.(v_oil_amounts))))
+        recommended_val = recommended_qualities()[q]
+        recommended_min = Int64(recommended_val.first)
+        recommended_max = Int64(recommended_val.second)
+        warning = ""
+
+        if (quality_val > recommended_max) || (quality_val < recommended_min)
+            warning = "*"
+        end
+
+        println("\t", q, " = ", quality_val, " (", recommended_min, ", ", recommended_max ,")", warning)
     end
+    #quality_to_optimize = Int64(Cleansing::Quality)
+    #println(value(qualities_lb[quality_to_optimize]), "\t", value(qualities_lb[quality_to_optimize]) * sum(value.(v_oil_amounts)))
+    #println(value(qualities_ub[quality_to_optimize]), "\t", value(qualities_ub[quality_to_optimize]) * sum(value.(v_oil_amounts)))
+    #println(value(v_qualities[quality_to_optimize]), "\t", value(v_qualities[quality_to_optimize]) / sum(value.(v_oil_amounts)))
 end
