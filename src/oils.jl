@@ -109,8 +109,18 @@ end
 function fatty_contribution(quality::String)::Vector{Float64}
     return [ quality_contribution(f, quality) for f in collect(keys(FATTY_ACIDS))]
 end
+            
+# If noah was not found in data, compute it from sap value
+# Source : https://www.fromnaturewithlove.com/resources/sapon.asp     
+function naoh(oil::Oil)
+    if oil.sap_naoh != 0.0
+        return oil.sap_naoh
+    else
+        return ((oil.sap.first + oil.sap.second) / 2.0) / 1402.50       
+    end
+end
 
-
+            
 function load_oils(oil_database::String)::Vector{Oil}
     oil_file = joinpath(OILS_DIR, oil_database)
     if !isfile(oil_file)
