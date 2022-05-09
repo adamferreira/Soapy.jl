@@ -1,0 +1,284 @@
+[
+    {
+        "name": "HUILE VÉGÉTALE D'ABRICOT BIO (lot 21HV0102)",
+        "available" : true,
+        "density" : "0.91-0.92",
+        "price (€/L)" : 46.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-abricot-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "185-195"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 5.13,
+            "Stearic": 0.0,
+            "Ricinoleic": 0.0,
+            "Oleic": 67.99,
+            "Linoleic": 24.82,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE D'OLIVE BIO (lot 21HV0061)",
+        "available" : true,
+        "density" : "0.91-0.93",
+        "price (€/L)" : 18.8,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-olive-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "184-196"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 11.76,
+            "Stearic": 0.0,
+            "Ricinoleic": 0.0,
+            "Oleic": 75.57,
+            "Linoleic": 6.99,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE D'OLIVE BIO (lot 21HV0140)",
+        "available" : true,
+        "density" : "0.91-0.93",
+        "price (€/L)" : 18.8,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-olive-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "184-196"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 9.26,
+            "Stearic": 0.0,
+            "Ricinoleic": 0.0,
+            "Oleic": 79.35,
+            "Linoleic": 4.46,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE D'AMANDE DOUCE BIO (lot 22HV0010)",
+        "available" : true,
+        "density" : "0.91-0.92",
+        "price (€/L)" : 40.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-amande-douce-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "189-196"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 6.59,
+            "Stearic": 1.69,
+            "Ricinoleic": 0.0,
+            "Oleic": 70.73,
+            "Linoleic": 18.90,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE FRAMBOISE (lot 21HV0196)",
+        "available" : true,
+        "density" : "0.92-0.92",
+        "price (€/L)" : 99.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-framboise-aroma-zone",
+        "saponification": {
+            "SAP-value": "184-191"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 4.74,
+            "Stearic": 0.0,
+            "Ricinoleic": 0.0,
+            "Oleic": 21.91,
+            "Linoleic": 42.05,
+            "Linolenic": 25.60
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE SÉSAME BIO (lot 21HV0138)",
+        "available" : true,
+        "density" : "0.91-0.93",
+        "price (€/L)" : 17.90,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-sesame-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "187-195"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 9.63,
+            "Stearic": 6.40,
+            "Ricinoleic": 0.0,
+            "Oleic": 41.03,
+            "Linoleic": 41.93,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE PÉPINS DE RAISIN (lot 21HV0151)",
+        "available" : true,
+        "density" : "0.91-0.93",
+        "price (€/L)" : 12.90,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-pepins-de-raisin-aroma-zone",
+        "saponification": {
+            "SAP-value": "188-194"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 6.73,
+            "Stearic": 3.81,
+            "Ricinoleic": 0.0,
+            "Oleic": 21.29,
+            "Linoleic": 67.35,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE RICIN BIO (lot 21HV0127)",
+        "available" : true,
+        "density" : "0.954-0.960",
+        "price (€/L)" : 19.50,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-ricin-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "167-187"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 1.86,
+            "Stearic": 2.10,
+            "Ricinoleic": 84.24,
+            "Oleic": 4.68,
+            "Linoleic": 7.12,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE NOISETTE BIO (lot 21HV0044)",
+        "available" : true,
+        "density" : "0.91-0.93",
+        "price (€/L)" : 66.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-noisette-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "188-210"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 5.17,
+            "Stearic": 2.27,
+            "Ricinoleic": 0.0,
+            "Oleic": 84.71,
+            "Linoleic": 7.85,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE D'AVOCAT BIO (lot 21HV0152)",
+        "available" : true,
+        "density" : "0.91-0.93",
+        "price (€/L)" : 36.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-avocat-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "177-198"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 19.05,
+            "Stearic": 0.0,
+            "Ricinoleic": 0.0,
+            "Oleic": 56.32,
+            "Linoleic": 9.26,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE COCO BIO (lot 21HV0121)",
+        "available" : true,
+        "density" : "0.91-0.91",
+        "price (€/L)" : 17.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-coco-bio-aroma-zone",
+        "comment" : "acide caprylique (8.31%), acide caprique (6.10%)",
+        "saponification": {
+            "SAP-value": "248-265"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 48.94,
+            "Myristic": 19.22,
+            "Palmitic": 7.57,
+            "Stearic": 0.0,
+            "Ricinoleic": 0.0,
+            "Oleic": 0.0,
+            "Linoleic": 0.0,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE D'ARGAN BIO (lot 20HV0238)",
+        "available" : true,
+        "density" : "0.91-0.93",
+        "price (€/L)" : 75.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-argan-bio-aroma-zone",
+        "saponification": {
+            "SAP-value": "190-195"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 13.42,
+            "Stearic": 5.75,
+            "Ricinoleic": 0.0,
+            "Oleic": 48.83,
+            "Linoleic": 31.58,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "BEURRE VÉGÉTAL DE KARITÉ (SAUVAGE) (lot 21BEU0018)",
+        "available" : true,
+        "density" : "0.89-0.91",
+        "price (€/L)" : 18.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/beurre-vegetal-karite-sauvage-aroma-zone",
+        "saponification": {
+            "SAP-value": "160-200"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 3.28,
+            "Stearic": 43.43,
+            "Ricinoleic": 0.0,
+            "Oleic": 45.74,
+            "Linoleic": 6.11,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE JOJOBA BIO (lot 21HV0101)",
+        "available" : true,
+        "density" : "0.84-0.89",
+        "price (€/L)" : 49.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-jojoba-bio-aroma-zone",
+        "comment" : "Acides gras mono-insaturés (AGMI) : acide gadoléique (72.14%), acide érucique (14.22%), acide oléique (9.81%) Acides gras saturés (AGS) : acide nervonique (1.55%)",
+        "saponification": {
+            "SAP-value": "85-98"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 0.0,
+            "Stearic": 0.0,
+            "Ricinoleic": 0.0,
+            "Oleic": 9.81,
+            "Linoleic": 0.0,
+            "Linolenic": 0.0
+        }
+    }
+]
