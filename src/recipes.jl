@@ -84,6 +84,9 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
 
     # Binary constraints
     @constraint(recipe, c_oil_taken, v_is_oil_present .>= v_oil_amounts / soap_weight)
+    # When a oil is taken, it should represent at least 3% of the total soap
+    # This is usefull when min number of oil is >= 1, so the solveur does not put 0.0g of some oils in the mix
+    #@constraint(recipe, c_oil_taken_min_amount, v_oil_amounts .>= 0.03 * soap_weight * v_is_oil_present)
 
     # Constraint for maximum value of oil mixing, but art least one oil
     @constraint(recipe, c_max_oils, r.target_number_of_oils.first <= sum(v_is_oil_present) <= r.target_number_of_oils.second)
@@ -94,7 +97,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     # Super fat is the percentage of fat we wish to not saponify 
     # So instead of using the amount of lye for the saponification 100% of the oil
     # We will compute lye for x = total_fat_weight * (1 - super_fat_percent/100.0)  grams of fat
-    @constraint(recipe, c_total_lye_amount, v_lye_amounts .== (v_oil_amounts .* [o.sap_naoh for o in r.oils]) * (1.0 - super_fat_ratio))
+    @constraint(recipe, c_total_lye_amount, v_lye_amounts .== (v_oil_amounts .* [naoh(r.oils[i]) for i = s_oils_set]) * (1.0 - super_fat_ratio))
     # Lye amounts calculation
     @constraint(recipe, c_total_water_amount, v_water_amounts .== (v_lye_amounts / lye_concentration_ratio) .- v_lye_amounts) # means water to lye ratio = 2.3333:1
 
@@ -160,7 +163,11 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     # Display found recipe
     println("Soap composition : ")
     println("\t", "Oils (", Int64(sum(value.(v_is_oil_present))) ,") : ")
+    __total_price = 0.0
+    __print_price = true
     for i in oils_in_recipe
+        __total_price += r.oils[i].price * value(v_oil_amounts[i])
+        __print_price &= (r.oils[i].price >= 0.0)
         print_ingredient(r.oils[i].name, value(v_oil_amounts[i]), "g", 2)
     end
     print_ingredient("Total", sum(value.(v_oil_amounts)), "g", 2)
@@ -190,4 +197,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
         println("\t", q, " = ", quality_val, " (", recommended_min, ", ", recommended_max ,")", warning)
     end
     print_ingredient("Super Fat", 100.0 * super_fat_ratio, "%")
+    if __print_price
+        println("Total estimated cost of the soap = $(Int64(round(__total_price)))€/Kg")
+    end
 end

@@ -98,6 +98,8 @@ mutable struct Oil
     iodine::Float64
     # INS index = overall quality
     ins::Float64
+    # Price in €/Kg
+    price::Float64
     # Fatty Acid Compostion (sum = 1.0)
     fa_composition::Dict{String, Float64}
 end
@@ -120,6 +122,15 @@ function naoh(oil::Oil)
     end
 end
 
+# Same goes for KOH
+function koh(oil::Oil)
+    if oil.sap_koh != 0.0
+        return oil.sap_koh
+    else
+        return ((oil.sap.first + oil.sap.second) / 2.0) / 1000.0       
+    end
+end
+
             
 function load_oils(oil_database::String)::Vector{Oil}
     oil_file = joinpath(OILS_DIR, oil_database)
@@ -129,15 +140,28 @@ function load_oils(oil_database::String)::Vector{Oil}
     json = JSON.parsefile(oil_file)
     oils = Vector{Oil}()
     for o in json
-        sap = split(o["saponification"]["SAP-value"], "-")
+        __sap = split(o["saponification"]["SAP-value"], "-")
+        __naoh = "NaOH" in keys(o["saponification"]) ? o["saponification"]["NaOH"] : 0.0
+        __koh = "KOH" in keys(o["saponification"]) ? o["saponification"]["KOH"] : 0.0
+        __iodine = "Iodine" in keys(o["saponification"]) ? o["saponification"]["Iodine"] : 0.0
+        __ins = "INS" in keys(o["saponification"]) ? o["saponification"]["INS"] : 0.0
+        __price_liter = "price (€/L)" in keys(o) ? o["price (€/L)"] : 0.0
+        __density = 0.0
+        __price_grams = 0.0
+        if "density" in keys(o)
+            d = split(o["density"], "-")
+            __density = (parse(Float64, d[1]) + parse(Float64, d[2])) / 2.0
+        end
+        __price_grams = (__price_liter * __density) / 1000.0
         push!(oils, 
             Oil(
                 o["name"], 
-                Pair{UInt64, UInt64}(parse(Int64, sap[1]), parse(Int64, sap[2])),
-                o["saponification"]["NaOH"],
-                o["saponification"]["KOH"],
-                o["saponification"]["Iodine"],
-                o["saponification"]["INS"],
+                Pair{UInt64, UInt64}(parse(Int64, __sap[1]), parse(Int64, __sap[2])),
+                __naoh,
+                __koh,
+                __iodine,
+                __ins,
+                __price_grams,
                 o["fatty-acid-composition"],
             )
         )
