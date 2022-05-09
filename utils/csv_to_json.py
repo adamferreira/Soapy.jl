@@ -26,7 +26,7 @@ def load_1():
     qualities = {}
     fatty_acids = {}
 
-    with open(os.path.join(dir_path, "..", "data", "oils_qualities.csv")) as csvfile:
+    with open(os.path.join(dir_path, "oils_qualities.csv")) as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';')
         header = next(spamreader)
         for row in spamreader:
@@ -35,7 +35,7 @@ def load_1():
             qualities[oil_name]["Iodine"] = float(row[6])
             qualities[oil_name]["INS"] = float(row[7])
 
-    with open(os.path.join(dir_path, "..", "data", "oils_compositions.csv")) as csvfile:
+    with open(os.path.join(dir_path, "oils_compositions.csv")) as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';')
         header = next(spamreader)
         for row in spamreader:
@@ -45,7 +45,7 @@ def load_1():
                 fatty_acids[oil_name][FATTY_ACIDS[i]] = float(row[i+1])
             
 
-    with open(os.path.join(dir_path, "..", "data", "oils.csv")) as csvfile:
+    with open(os.path.join(dir_path, "oils.csv")) as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';')
         for row in spamreader:
             
@@ -69,7 +69,7 @@ def load_1():
             "fatty-acid-composition" : fatty_acid_composition
             })
 
-    with open(os.path.join(dir_path, "..", "data", "oils.json"), "w+") as f:
+    with open(os.path.join(dir_path, "oils.json"), "w+") as f:
         json.dump(oils, f,  indent=4)
 
 # Here we assume that oils_qualities.csv and oils_compositions.csv
@@ -79,7 +79,7 @@ def load_2():
     qualities = {}
     compositions = {}
 
-    with open(os.path.join(dir_path, "..", "data", "oils_qualities.csv")) as csvfile:
+    with open(os.path.join(dir_path, "oils_qualities.csv")) as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';')
         header = next(spamreader)
         for row in spamreader:
@@ -88,7 +88,7 @@ def load_2():
             qualities[oil_name]["Iodine"] = float(row[6])
             qualities[oil_name]["INS"] = float(row[7])
 
-    with open(os.path.join(dir_path, "..", "data", "oils_compositions.csv")) as csvfile:
+    with open(os.path.join(dir_path, "oils_compositions.csv")) as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';')
         header = next(spamreader)
         for row in spamreader:
