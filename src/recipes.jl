@@ -7,7 +7,7 @@ mutable struct RecipeCalculator
     oils::Vector{Oil}
     target_weight::Float64 # in gram
     target_qualities::Dict{String, Pair{Float64, Float64}}
-    c_max_oils::Int64
+    target_number_of_oils::Pair{Int64, Int64}
     lye_concentration_percent::Float64 # Lye percent of water + lye solution
     super_fat_percent::Float64 # In percent of total fat
     fragrance_percent::Float64 # Ratio total fat (usally 3-4% of total fat weight)
@@ -19,7 +19,7 @@ mutable struct RecipeCalculator
                 1000.0,
                 #0.0 => typemax(Float64),
                 Dict((q => (0.0 => 1000.0) for q in qualities())),
-                length(oils),
+                1 => length(oils),
                 30.0,
                 5.0,
                 4.0
@@ -53,7 +53,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     qualities_lb = [r.target_qualities[q].first for q in qualities()]
     qualities_ub = [r.target_qualities[q].second for q in qualities()]
 
-    println("Mixing up to $(r.c_max_oils) oils together out of $(length(r.oils))")
+    println("Mixing $(r.target_number_of_oils.first) to $(r.target_number_of_oils.second) oils together out of $(length(r.oils))")
     println("Will keep soap mass at $(soap_weight)g ")
 
     # --------------------------
@@ -86,7 +86,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     @constraint(recipe, c_oil_taken, v_is_oil_present .>= v_oil_amounts / soap_weight)
 
     # Constraint for maximum value of oil mixing, but art least one oil
-    @constraint(recipe, c_max_oils, 1.0 <= sum(v_is_oil_present) <= r.c_max_oils)
+    @constraint(recipe, c_max_oils, r.target_number_of_oils.first <= sum(v_is_oil_present) <= r.target_number_of_oils.second)
 
     # (Amount of Fat) × (Saponification Value of the Fat) = (Amount of Lye)
     # (Amount of Lye) ÷ 0.3 = (Total Weight of Lye Water Solution)  (if lye+water solution is 30% concentrated)
@@ -190,9 +190,4 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
         println("\t", q, " = ", quality_val, " (", recommended_min, ", ", recommended_max ,")", warning)
     end
     print_ingredient("Super Fat", 100.0 * super_fat_ratio, "%")
-
-    #quality_to_optimize = Int64(Cleansing::Quality)
-    #println(value(qualities_lb[quality_to_optimize]), "\t", value(qualities_lb[quality_to_optimize]) * sum(value.(v_oil_amounts)))
-    #println(value(qualities_ub[quality_to_optimize]), "\t", value(qualities_ub[quality_to_optimize]) * sum(value.(v_oil_amounts)))
-    #println(value(v_qualities[quality_to_optimize]), "\t", value(v_qualities[quality_to_optimize]) / sum(value.(v_oil_amounts)))
 end
