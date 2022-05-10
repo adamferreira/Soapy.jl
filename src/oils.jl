@@ -133,6 +133,11 @@ end
 
             
 function load_oils(oil_database::String)::Vector{Oil}
+
+    function default_value(d, k)
+        return haskey(d, k) ? d[k] : 0.0
+    end
+
     oil_file = joinpath(OILS_DIR, oil_database)
     if !isfile(oil_file)
         throw(error("Cannot find oil file $oil_file"))
@@ -141,11 +146,11 @@ function load_oils(oil_database::String)::Vector{Oil}
     oils = Vector{Oil}()
     for o in json
         __sap = split(o["saponification"]["SAP-value"], "-")
-        __naoh = "NaOH" in keys(o["saponification"]) ? o["saponification"]["NaOH"] : 0.0
-        __koh = "KOH" in keys(o["saponification"]) ? o["saponification"]["KOH"] : 0.0
-        __iodine = "Iodine" in keys(o["saponification"]) ? o["saponification"]["Iodine"] : 0.0
-        __ins = "INS" in keys(o["saponification"]) ? o["saponification"]["INS"] : 0.0
-        __price_liter = "price (€/L)" in keys(o) ? o["price (€/L)"] : 0.0
+        __naoh = default_value(o["saponification"], "NaOH")
+        __koh = default_value(o["saponification"], "KOH")
+        __iodine = default_value(o["saponification"], "Iodine")
+        __ins = default_value(o["saponification"], "INS")
+        __price_liter = default_value(o["saponification"], "price (€/L)")
         __density = 0.0
         __price_grams = 0.0
         if "density" in keys(o)
