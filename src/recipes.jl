@@ -46,22 +46,29 @@ end
 function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     recipe = Model(GLPK.Optimizer)
 
-    soap_weight = r.target_weight
-    fragrance_ratio = r.fragrance_percent / 100.0
-    super_fat_ratio = r.super_fat_percent / 100.0
-    lye_concentration_ratio = r.lye_concentration_percent / 100.0
-    qualities_lb = [r.target_qualities[q].first for q in qualities()]
-    qualities_ub = [r.target_qualities[q].second for q in qualities()]
 
     println("Mixing $(r.target_number_of_oils.first) to $(r.target_number_of_oils.second) oils together out of $(length(r.oils))")
-    println("Will keep soap mass at $(soap_weight)g ")
-
+    println("Will keep soap mass at $(r.target_weight)g ")
     # --------------------------
     # Sets
     #---------------------------   
     s_oils_set = 1:length(r.oils)
     s_qualtities_set = 1:length(QUALITIES)
     s_fatty_acids_set = 1:length(FATTY_ACIDS)
+
+
+    # --------------------------
+    # Constants
+    #---------------------------   
+    soap_weight = r.target_weight
+    fragrance_ratio = r.fragrance_percent / 100.0
+    super_fat_ratio = r.super_fat_percent / 100.0
+    lye_concentration_ratio = r.lye_concentration_percent / 100.0
+    qualities_lb = [r.target_qualities[q].first for q in qualities()]
+    qualities_ub = [r.target_qualities[q].second for q in qualities()]
+    # the targeted value of a quality is the midpoint of its recommended range
+    recommended_q = recommended_qualities()
+    qualities_target = [0.5 * (recommended_q[q].first + recommended_q[q].second) for q in qualities()]
 
     # --------------------------
     # Variables
@@ -74,6 +81,11 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
 
     # Real variables representing quality values of the recipe
     @variable(recipe, v_qualities[i = s_qualtities_set] >= 0.0)
+    # Variable representing absolute deviation of a quality value from its recommended target
+    # Δq = Δq⁺ - Δq⁻
+    @variable(recipe, v_Δq⁺[i = s_qualtities_set] >= 0.0)
+    @variable(recipe, v_Δq⁻[i = s_qualtities_set] >= 0.0)
+
 
     # Binary variable telling if an oil is put in the recipe or not
     @variable(recipe, v_is_oil_present[i = s_oils_set], binary = true)
@@ -133,8 +145,14 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
         # min_q_target <= q_amout / fat_amount <= max_q_target
         # min_q_target * fat_amount <= q_amout <= max_q_target * fat_amount
         push!(c_qualities, @constraint(recipe, v_qualities[q] == quality_value_expr))
-        @constraint(recipe,  v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
-        @constraint(recipe,  v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
+        @constraint(recipe, v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
+        @constraint(recipe, v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
+    end
+    # Absolute deviation from (scaled) target constraint
+    # Δq = Δq⁺ - Δq⁻ = v - t
+    # INS and Iodine does not contribute to the overall score
+    for q = setdiff(s_qualtities_set, [Int64(Iodine::Quality), Int64(INS::Quality)])
+        @constraint(recipe, v_Δq⁺[q] - v_Δq⁻[q] == v_qualities[q] - (qualities_target[q] * sum(v_oil_amounts)))
     end
 
 
@@ -142,7 +160,9 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     # Objective
     #---------------------------
     # Maximise INS score
-    @objective(recipe, Max, v_qualities[quality_key(quality_to_optimize)])
+    #@objective(recipe, Max, v_qualities[quality_key(quality_to_optimize)])
+    # Minimize total target deviation
+    @objective(recipe, Min, sum(v_Δq⁺ + v_Δq⁻))
 
     # Solve the problem
     try
@@ -167,7 +187,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     __print_price = true
     for i in oils_in_recipe
         __total_price += r.oils[i].price * value(v_oil_amounts[i])
-        __print_price &= (r.oils[i].price >= 0.0)
+        __print_price &= (r.oils[i].price > 0.0)
         print_ingredient(r.oils[i].name, value(v_oil_amounts[i]), "g", 2)
     end
     print_ingredient("Total", sum(value.(v_oil_amounts)), "g", 2)
@@ -200,4 +220,14 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     if __print_price
         println("Total estimated cost of the soap = $(Int64(round(__total_price)))€/Kg")
     end
+
+    # The penalty score of the soap is the total absolute deviation divided by the maximum possible deviation from target
+    __score_penalty = sum(abs.(value.(v_Δq⁺) - value.(v_Δq⁻))) / sum(value.(v_oil_amounts))
+    # Max deviation is max(l-m,u-m) for each quality
+    __max_deviation = 0.0
+    for q = setdiff(s_qualtities_set, [Int64(Iodine::Quality), Int64(INS::Quality)])
+        __max_deviation += max(qualities_target[q] - qualities_lb[q], qualities_ub[q] - qualities_target[q])
+    end
+    # Scale the score out of 100 points
+    println("Saopy score =  $(Int64(round(100 - 100 * (__score_penalty / __max_deviation))))/100")
 end

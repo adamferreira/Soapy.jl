@@ -153,7 +153,7 @@ function load_oils(oil_database::String)::Vector{Oil}
         __price_liter = default_value(o["saponification"], "price (€/L)")
         __density = 0.0
         __price_grams = 0.0
-        if "density" in keys(o)
+        if haskey(o, "density")
             d = split(o["density"], "-")
             __density = (parse(Float64, d[1]) + parse(Float64, d[2])) / 2.0
         end
