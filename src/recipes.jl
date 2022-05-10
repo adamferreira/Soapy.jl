@@ -187,7 +187,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     __print_price = true
     for i in oils_in_recipe
         __total_price += r.oils[i].price * value(v_oil_amounts[i])
-        __print_price &= (r.oils[i].price > 0.0)
+        __print_price |= (r.oils[i].price > 0.0)
         print_ingredient(r.oils[i].name, value(v_oil_amounts[i]), "g", 2)
     end
     print_ingredient("Total", sum(value.(v_oil_amounts)), "g", 2)

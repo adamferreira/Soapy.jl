@@ -150,7 +150,7 @@ function load_oils(oil_database::String)::Vector{Oil}
         __koh = default_value(o["saponification"], "KOH")
         __iodine = default_value(o["saponification"], "Iodine")
         __ins = default_value(o["saponification"], "INS")
-        __price_liter = default_value(o["saponification"], "price (€/L)")
+        __price_liter = default_value(o, "price (€/L)")
         __density = 0.0
         __price_grams = 0.0
         if haskey(o, "density")
