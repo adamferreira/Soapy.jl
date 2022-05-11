@@ -67,8 +67,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     qualities_lb = [r.target_qualities[q].first for q in qualities()]
     qualities_ub = [r.target_qualities[q].second for q in qualities()]
     # the targeted value of a quality is the midpoint of its recommended range
-    recommended_q = recommended_qualities()
-    qualities_target = [0.5 * (recommended_q[q].first + recommended_q[q].second) for q in qualities()]
+    qualities_target = (qualities_lb + qualities_lb) / 2.0
 
     # --------------------------
     # Variables
@@ -83,8 +82,8 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     @variable(recipe, v_qualities[i = s_qualtities_set] >= 0.0)
     # Variable representing absolute deviation of a quality value from its recommended target
     # Δq = Δq⁺ - Δq⁻
-    @variable(recipe, v_Δq⁺[i = s_qualtities_set] >= 0.0)
-    @variable(recipe, v_Δq⁻[i = s_qualtities_set] >= 0.0)
+    @variable(recipe, v_Δq⁺[i = setdiff(s_qualtities_set, [Int64(Iodine::Quality), Int64(INS::Quality)])] >= 0.0)
+    @variable(recipe, v_Δq⁻[i = setdiff(s_qualtities_set, [Int64(Iodine::Quality), Int64(INS::Quality)])] >= 0.0)
 
 
     # Binary variable telling if an oil is put in the recipe or not
