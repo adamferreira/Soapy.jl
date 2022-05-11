@@ -183,7 +183,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     r_total_water_amount = sum(value.(v_water_amounts))
     r_total_lye_amount = sum(value.(v_lye_amounts))
     # Scale down oil amount from g to kg
-    r_total_oils_price = sum([r.oils[i].price * r_oil_amounts[i] for i = r_oils_in_recipe]) / 1000.0
+    r_total_oils_price = sum([r.oils[i].price * r_oil_amounts[i] / 1000.0 for i = r_oils_in_recipe])
     # Qualities value scaled down to their true values
     r_qualities_value = value.(v_qualities) / r_total_oil_amount
 
@@ -215,7 +215,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
         println("\t", q, " = ", quality_val, " (", recommended_min, ", ", recommended_max ,")", warning)
     end
     print_ingredient("Super Fat", 100.0 * super_fat_ratio, "%")
-    println("Total estimated cost of the soap = $(Int64(round(r_total_oils_price / soap_weight / 1000.0)))€/Kg")
+    println("Total estimated cost of the soap = $(Int64(round(r_total_oils_price / (soap_weight / 1000.0))))€/Kg")
 
     # The penalty score of the soap is the total absolute deviation divided by the maximum possible deviation from target
     # Scaled down to a score out of 100
