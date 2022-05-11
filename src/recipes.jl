@@ -17,7 +17,6 @@ mutable struct RecipeCalculator
         return new(
                 oils,
                 1000.0,
-                #0.0 => typemax(Float64),
                 Dict((q => (0.0 => 1000.0) for q in qualities())),
                 1 => length(oils),
                 30.0,
@@ -171,64 +170,67 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
         return
     end
 
+
+    # --------------------------
+    # Results
+    #---------------------------
+
     # Retrive solution
-    oils_in_recipe = Vector{Int64}()
-    for i = 1:length(r.oils)
-        if value(v_is_oil_present[i]) == 1.0
-            push!(oils_in_recipe, i)
-        end
-    end
+    r_oils_in_recipe = [i for i = s_oils_set if value(v_is_oil_present[i]) == 1.0]
+    # oils amount in the soap in grams
+    r_oil_amounts = value.(v_is_oil_present .* v_oil_amounts)
+    r_total_oil_amount = sum(r_oil_amounts)
+    r_total_water_amount = sum(value.(v_water_amounts))
+    r_total_lye_amount = sum(value.(v_lye_amounts))
+    # Scale down oil amount from g to kg
+    r_total_oils_price = sum([r.oils[i].price * r_oil_amounts[i] for i = r_oils_in_recipe]) / 1000.0
+    # Qualities value scaled down to their true values
+    r_qualities_value = value.(v_qualities) / r_total_oil_amount
+
 
     # Display found recipe
     println("Soap composition : ")
-    println("\t", "Oils (", Int64(sum(value.(v_is_oil_present))) ,") : ")
-    __total_price = 0.0
-    __print_price = true
-    for i in oils_in_recipe
-        # Scale down oil amount from g to kg
-        __total_price += r.oils[i].price * value(v_oil_amounts[i]) / 1000.0
-        __print_price |= (r.oils[i].price > 0.0)
-        print_ingredient(r.oils[i].name, value(v_oil_amounts[i]), "g", 2)
-    end
-    print_ingredient("Total", sum(value.(v_oil_amounts)), "g", 2)
-
-    print_ingredient("Water", sum(value.(v_water_amounts)), "g")
-    print_ingredient("Lye", sum(value.(v_lye_amounts)), "g")
-    print_ingredient("(Lye concentration", lye_concentration_ratio * 100.0, "% of total Water + Lye solution)")
+    println("\t", "Oils (", length(r_oils_in_recipe) ,") : ")
+    [print_ingredient(r.oils[i].name, value(v_oil_amounts[i]), "g", 2) for i = r_oils_in_recipe]
+    print_ingredient("Total", r_total_oil_amount, "g", 2)
+    print_ingredient("Water", r_total_water_amount, "g")
+    print_ingredient("Lye", r_total_lye_amount, "g")
     # fragrance_g = fragrance_ratio * sum(value.(v_oil_amounts))
     # fragrance_g_per_kg = fragrance_g * (1.0 / sum(value.(v_oil_amounts) / soap_weight), digits = 2) 
     # fragrance_g_per_kg = (fragrance_ratio * sum(value.(v_oil_amounts))) * (soap_weight / sum(value.(v_oil_amounts)))
     # fragrance_g_per_kg = fragrance_ratio * soap_weight
-    print_ingredient("Fragrance", fragrance_ratio * sum(value.(v_oil_amounts)), "g")
+    print_ingredient("Fragrance", fragrance_ratio * r_total_oil_amount, "g")
     print_ingredient("Total", soap_weight, "g")
 
     println("Soap quality (Recommended) : ")
     for q in qualities()
-        quality_val = Int64(floor(value(v_qualities[quality_key(q)]) / sum(value.(v_oil_amounts))))
+        quality_val = Int64(floor(r_qualities_value[quality_key(q)]))
         recommended_val = recommended_qualities()[q]
         recommended_min = Int64(recommended_val.first)
         recommended_max = Int64(recommended_val.second)
         warning = ""
-
         if (quality_val > recommended_max) || (quality_val < recommended_min)
             warning = "*"
         end
-
         println("\t", q, " = ", quality_val, " (", recommended_min, ", ", recommended_max ,")", warning)
     end
     print_ingredient("Super Fat", 100.0 * super_fat_ratio, "%")
-    if __print_price
-        __total_price /= soap_weight / 1000.0
-        println("Total estimated cost of the soap = $(Int64(round(__total_price)))€/Kg")
-    end
+    println("Total estimated cost of the soap = $(Int64(round(r_total_oils_price / soap_weight / 1000.0)))€/Kg")
 
     # The penalty score of the soap is the total absolute deviation divided by the maximum possible deviation from target
-    __score_penalty = sum(abs.(value.(v_Δq⁺) - value.(v_Δq⁻))) / sum(value.(v_oil_amounts))
-    # Max deviation is max(l-m,u-m) for each quality
+    # Scaled down to a score out of 100
+    recommended_qualities_values = recommended_qualities()
+    qualities_target = [0.5 * (recommended_q[q].first + recommended_q[q].second) for q in qualities()]
+    recommended_qualities_lb = [recommended_q[q].second for q in qualities()]
+    recommended_qualities_ub = [recommended_q[q].second for q in qualities()]
+    __total_deviatation = 0.0
     __max_deviation = 0.0
+    # Total deviation is \sum abs(q-m)
+    # Max deviation is max(l-m,u-m) for each quality (not INS and iodine)
     for q = setdiff(s_qualtities_set, [Int64(Iodine::Quality), Int64(INS::Quality)])
-        __max_deviation += max(qualities_target[q] - qualities_lb[q], qualities_ub[q] - qualities_target[q])
+        __total_deviatation += abs(r_qualities_value[q] - qualities_target[q])
+        __max_deviation += max(qualities_target[q] - recommended_qualities_lb[q], recommended_qualities_ub[q] - qualities_target[q])
     end
     # Scale the score out of 100 points
-    println("Saopy score =  $(Int64(round(100 - 100 * (__score_penalty / __max_deviation))))/100")
+    println("Saopy score =  $(Int64(round(100 - 100 * (__total_deviatation / __max_deviation))))/100")
 end
