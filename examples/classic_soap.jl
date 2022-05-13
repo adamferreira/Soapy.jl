@@ -1,7 +1,7 @@
 using Soapy
 
 # Make a soap with most commun oils
-recipe = Soapy.RecipeCalculator("oils_test.json")
+recipe = Soapy.RecipeCalculator("oils_aromazone.json")
 # Make a 1kg soap
 recipe.target_weight = 700.0
 # Use recommended qualities for a balanced soap
