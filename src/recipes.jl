@@ -250,4 +250,6 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")::Rec
     end
     # Scale the score out of 100 points
     println("Saopy score =  $(Int64(round(100 - 100 * (__total_deviatation / __max_deviation))))/100")
+
+    return optimized
 end
