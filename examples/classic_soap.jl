@@ -10,4 +10,4 @@ recipe.target_weight = 700.0
 recipe.super_fat_percent = 30.0
 recipe.lye_concentration_percent = 30.0
 recipe.fragrance_percent = 3.0
-@time Soapy.maximise_quality(recipe, "Iodine")
+@time print_recipe(Soapy.maximise_quality(recipe, "Iodine"))
