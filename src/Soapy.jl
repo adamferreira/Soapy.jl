@@ -1,5 +1,5 @@
 module Soapy
 
-include("recipes.jl")
+include("display.jl")
 
 end

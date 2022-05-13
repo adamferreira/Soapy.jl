@@ -26,23 +26,30 @@ mutable struct RecipeCalculator
     end
 end
 
-function soap_weight!(r::RecipeCalculator, min::Float64, max::Float64)
-    r.target_weight = min => max
-end
-
-function print_ingredient(name, value, unit = "", tab_lvl = 1)
-    tab = ""
-    if tab_lvl > 0
-        tab = join(["" for i = 0:tab_lvl], "\t")
-    end
-    println(tab, name, " = ", round(value, digits = 2), unit)
+mutable struct Recipe
+    options::RecipeCalculator
+    # All weight and amounts are in grams
+    soap_weight::Float64
+    oil_amounts::Vector{Float64}
+    oils_in_recipe::Vector{Int64}
+    oil_amount::Float64
+    water_amount::Float64
+    lye_amount::Float64
+    # In €/kg
+    oils_prices::Vector{Float64}
+    qualities::Vector{Float64}
+    recommended_qualities_target::Vector{Float64}
+    recommended_qualities_lb::Vector{Float64}
+    recommended_qualities_ub::Vector{Float64}
+    score::Float64
+    function Recipe() return new() end
 end
 
 function maximise_quality(r::RecipeCalculator, quality::String)
     return simulate(r, quality)
 end
 
-function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
+function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")::Recipe
     recipe = Model(GLPK.Optimizer)
 
 
@@ -175,6 +182,16 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     # Results
     #---------------------------
 
+    optimized = Recipe()
+    optimized.options = r
+    optimized.soap_weight = soap_weight
+    optimized.oils_in_recipe = [i for i = s_oils_set if value(v_is_oil_present[i]) == 1.0]
+    optimized.oil_amounts = value.(v_is_oil_present .* v_oil_amounts)
+    optimized.oil_amount = sum(optimized.oil_amounts)
+    optimized.lye_amount = sum(value.(v_lye_amounts))
+    optimized.water_amount = sum(value.(v_water_amounts))
+    optimized.oils_prices = [optimized.options.oils[i].price * optimized.oil_amounts[i] / 1000.0 for i = optimized.oils_in_recipe]
+
     # Retrive solution
     r_oils_in_recipe = [i for i = s_oils_set if value(v_is_oil_present[i]) == 1.0]
     # oils amount in the soap in grams
@@ -221,7 +238,7 @@ function simulate(r::RecipeCalculator, quality_to_optimize::String = "INS")
     # Scaled down to a score out of 100
     recommended_qualities_values = recommended_qualities()
     qualities_target = [0.5 * (recommended_q[q].first + recommended_q[q].second) for q in qualities()]
-    recommended_qualities_lb = [recommended_q[q].second for q in qualities()]
+    recommended_qualities_lb = [recommended_q[q].first for q in qualities()]
     recommended_qualities_ub = [recommended_q[q].second for q in qualities()]
     __total_deviatation = 0.0
     __max_deviation = 0.0
