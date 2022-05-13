@@ -26,6 +26,8 @@ mutable struct RecipeCalculator
     end
 end
 
+struct Recipe <: RecipeCalculator end
+
 function soap_weight!(r::RecipeCalculator, min::Float64, max::Float64)
     r.target_weight = min => max
 end
