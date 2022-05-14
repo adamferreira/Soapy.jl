@@ -1,0 +1,8 @@
+name: soapy
+
+channels:
+  - conda-forge
+  - conda
+  
+dependencies:
+  - voila
