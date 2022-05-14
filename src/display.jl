@@ -79,13 +79,22 @@ function plot_recipe(r::Recipe)
     end
 
     function score_to_gauge(coord_x, coord_y)
+        color = "green"
+        if roundint(score(r)) >= 70 
+            color = "green" 
+        else
+            color = "orange"
+        end
+        if roundint(score(r)) < 30 color = "red" end
+
         return indicator(
             mode = "gauge+number",
             title_text = "Soapy Score",
             value = roundint(score(r)),
             domain = attr(row = coord_x, column = coord_y),
             gauge=attr(
-                axis_range=[0, 100],
+                bar_color = color,
+                axis_range = [0, 100],
             )
         )
     end
@@ -93,6 +102,12 @@ function plot_recipe(r::Recipe)
     function quality_to_gauge(quality::String, coord_x, coord_y)
         qkey = quality_key(quality)
         max_val = max(r.recommended_qualities_max[qkey], 100)#, r.options.target_qualities[quality].second)
+        color = "green"
+
+        if (roundint(r.qualities[qkey]) < roundint(r.recommended_qualities_min[qkey])) || (roundint(r.qualities[qkey]) > roundint(r.recommended_qualities_max[qkey]))
+            color = "orange"
+        end
+
         return indicator(
             mode = "number+gauge",
             domain = attr(row = coord_x, column = coord_y),
@@ -101,6 +116,7 @@ function plot_recipe(r::Recipe)
             title_text = "<b>$(quality)</b>",
             gauge=attr(
                 shape="bullet",
+                bar_color = color,
                 axis_range=[nothing, max_val],
                 threshold=attr(
                     line=attr(color="red", width=2),
