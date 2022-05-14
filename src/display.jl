@@ -1,3 +1,4 @@
+using PlotlyJS
 
 include("recipes.jl")
 
@@ -41,3 +42,86 @@ function print_recipe(r::Recipe)
 end
 
 Base.show(io::IO, r::Recipe) = print_recipe(r)
+
+function plot_recipe(r::Recipe)
+
+    function roundint(x)
+        return Int64(round(x))
+    end
+
+    function summary_to_table()
+        total = round(r.options.target_weight, digits = 2)
+        oil = round(r.oil_amount, digits = 2)
+        water = round(r.water_amount, digits = 2)
+        lye = round(r.lye_amount, digits = 2)
+        fragrance = round(frangrance_amount(r), digits = 2)
+        return PlotlyJS.table(
+            header_values=["Total", "$(total)g"],
+            cells_values=[
+                ["Oil", "Water", "Lye", "Fragrance"],
+                [
+                    "$(oil)g", "$(water)g", "$(lye)g", "$(fragrance)g"
+                ]
+            ],
+            #domain = attr(row = 1, column = 0),
+            domain = attr(x = [0.0, 0.45], y = [0.6 ,0.85])
+        )
+    end
+
+    function composition_to_chart()
+        return PlotlyJS.pie(
+            values = [round(r.oil_amounts[i], digits = 2) for i = r.oils_in_recipe], 
+            labels = [r.options.oils[i].name for i = r.oils_in_recipe],
+            texttemplate = "%{value:.2f}g <br>(%{percent})",
+            textposition="inside",
+            domain = attr(x = [0.05 ,0.45], y = [0.0, 0.5])
+        )
+    end
+
+    function score_to_gauge(coord_x, coord_y)
+        return indicator(
+            mode = "gauge+number",
+            title_text = "Soapy Score",
+            value = roundint(score(r)),
+            domain = attr(row = coord_x, column = coord_y),
+            gauge=attr(
+                axis_range=[0, 100],
+            )
+        )
+    end
+
+    function quality_to_gauge(quality::String, coord_x, coord_y)
+        qkey = quality_key(quality)
+        max_val = max(r.recommended_qualities_max[qkey], 100)#, r.options.target_qualities[quality].second)
+        return indicator(
+            mode = "number+gauge",
+            domain = attr(row = coord_x, column = coord_y),
+            #domain = attr(x = coord_x, y = coord_y),
+            value = roundint(r.qualities[qkey]),
+            title_text = "<b>$(quality)</b>",
+            gauge=attr(
+                shape="bullet",
+                axis_range=[nothing, max_val],
+                threshold=attr(
+                    line=attr(color="red", width=2),
+                    thickness=0.75,
+                    value = roundint(r.recommended_qualities_target[qkey])
+                ),
+                steps=[
+                    attr(range=[0, roundint(r.recommended_qualities_min[qkey])], color="lightgray"),
+                    attr(range=[roundint(r.recommended_qualities_min[qkey]), roundint(r.recommended_qualities_max[qkey])], color="gray"),
+                    attr(range=[roundint(r.recommended_qualities_max[qkey]), max_val], color="lightgray")
+                ]
+            )
+        )
+    end
+
+    qualities_layout = Layout(
+        grid=attr(rows=length(QUALITIES), columns=2, pattern="independent"),# showlegend=false
+        legend=attr(x=0.1, y=0.6)
+    )
+
+    qualities_gauges = [ quality_to_gauge(qualities()[i], i - 1, 1) for i = 1:length(QUALITIES)]
+
+    PlotlyJS.plot(vcat(qualities_gauges, [score_to_gauge(0, 0), summary_to_table(), composition_to_chart()]), qualities_layout)
+end
