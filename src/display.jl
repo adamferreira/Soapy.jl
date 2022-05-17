@@ -41,8 +41,6 @@ function print_recipe(r::Recipe)
     println("Saopy score =  $(Int64(round(score(r))))/100")
 end
 
-Base.show(io::IO, r::Recipe) = print_recipe(r)
-
 function plot_recipe(r::Recipe)
 
     function roundint(x)
@@ -139,5 +137,7 @@ function plot_recipe(r::Recipe)
 
     qualities_gauges = [ quality_to_gauge(qualities()[i], i - 1, 1) for i = 1:length(QUALITIES)]
 
-    PlotlyJS.plot(vcat(qualities_gauges, [score_to_gauge(0, 0), summary_to_table(), composition_to_chart()]), qualities_layout)
+    return PlotlyJS.plot(vcat(qualities_gauges, [score_to_gauge(0, 0), summary_to_table(), composition_to_chart()]), qualities_layout)
 end
+
+Base.show(io::IO, r::Recipe) = print_recipe(r)
