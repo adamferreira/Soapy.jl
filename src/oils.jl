@@ -1,6 +1,9 @@
 using JSON
 
+#include("structs.jl")
+
 export load_oils
+
 
 OILS_DIR = joinpath(@__DIR__, "..", "data")
 
@@ -102,6 +105,8 @@ mutable struct Oil
     price::Float64
     # Fatty Acid Compostion (sum = 1.0)
     fa_composition::Dict{String, Float64}
+    # Is oil available for mix
+    available::Bool
 end
 
 function quality_contribution(fatty_acid::String, quality::String)::Float64
@@ -134,8 +139,8 @@ end
             
 function load_oils(oil_database::String)::Vector{Oil}
 
-    function default_value(d, k)
-        return haskey(d, k) ? d[k] : 0.0
+    function default_value(d, k, default = 0.0 )
+        return haskey(d, k) ? d[k] : default
     end
 
     oil_file = joinpath(OILS_DIR, oil_database)
@@ -151,6 +156,7 @@ function load_oils(oil_database::String)::Vector{Oil}
         __iodine = default_value(o["saponification"], "Iodine")
         __ins = default_value(o["saponification"], "INS")
         __price_liter = default_value(o, "price (€/L)")
+        __available = convert(Bool, default_value(o, "available", 1.0))
         __density = 0.0
         if haskey(o, "density")
             d = split(o["density"], "-")
@@ -166,6 +172,7 @@ function load_oils(oil_database::String)::Vector{Oil}
                 __ins,
                 __price_liter * __density,
                 o["fatty-acid-composition"],
+                __available
             )
         )
     end

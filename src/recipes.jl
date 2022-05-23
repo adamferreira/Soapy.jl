@@ -92,6 +92,8 @@ function find_recipe(r::RecipeOptions)::Recipe
     # the targeted value of a quality is the midpoint of its recommended range
     recommended_q = recommended_qualities()
     qualities_target = [0.5 * (recommended_q[q].first + recommended_q[q].second) for q in qualities()]
+    oil_availabilities = [convert(Float64, r.oils[i].available) for i = s_oils_set]
+    oils = r.oils
 
     # --------------------------
     # Variables
@@ -118,7 +120,7 @@ function find_recipe(r::RecipeOptions)::Recipe
     #---------------------------
 
     # Binary constraints
-    @constraint(recipe, c_oil_taken, v_is_oil_present .>= v_oil_amounts / soap_weight)
+    @constraint(recipe, c_oil_taken, v_is_oil_present .>= (v_oil_amounts / soap_weight) .* oil_availabilities)
     # When a oil is taken, it should represent at least 3% of the total soap
     # This is usefull when min number of oil is >= 1, so the solveur does not put 0.0g of some oils in the mix
     #@constraint(recipe, c_oil_taken_min_amount, v_oil_amounts .>= 0.03 * soap_weight * v_is_oil_present)
@@ -132,7 +134,7 @@ function find_recipe(r::RecipeOptions)::Recipe
     # Super fat is the percentage of fat we wish to not saponify 
     # So instead of using the amount of lye for the saponification 100% of the oil
     # We will compute lye for x = total_fat_weight * (1 - super_fat_percent/100.0)  grams of fat
-    @constraint(recipe, c_total_lye_amount, v_lye_amounts .== (v_oil_amounts .* [naoh(r.oils[i]) for i = s_oils_set]) * (1.0 - super_fat_ratio))
+    @constraint(recipe, c_total_lye_amount, v_lye_amounts .== (v_oil_amounts .* [naoh(oils[i]) for i = s_oils_set]) * (1.0 - super_fat_ratio))
     # Lye amounts calculation
     @constraint(recipe, c_total_water_amount, v_water_amounts .== (v_lye_amounts / lye_concentration_ratio) .- v_lye_amounts) # means water to lye ratio = 2.3333:1
 
@@ -161,7 +163,7 @@ function find_recipe(r::RecipeOptions)::Recipe
     end
 
     for q = s_qualtities_set
-        quality_value_expr = sum([oil_quality_equation(r.oils[o], v_oil_amounts[o], q) for o = s_oils_set]) # in grams
+        quality_value_expr = sum([oil_quality_equation(oils[o], v_oil_amounts[o], q) for o = s_oils_set]) # in grams
         # The quality score of an oil mix is computed as follow
         # quality_content_of_the_mix (in grams) / total_amount_of_oils (in grams)
         # So whe sould satisfy :
