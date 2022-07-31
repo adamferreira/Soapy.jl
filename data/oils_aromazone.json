@@ -161,7 +161,7 @@
     },
     {
         "name": "HUILE VÉGÉTALE DE NOISETTE BIO (lot 21HV0044)",
-        "available" : true,
+        "available" : false,
         "density" : "0.91-0.93",
         "price (€/L)" : 66.0,
         "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-noisette-bio-aroma-zone",
@@ -279,6 +279,69 @@
             "Oleic": 9.81,
             "Linoleic": 0.0,
             "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE MACADAMIA (lot 21HV0211)",
+        "available" : true,
+        "density" : "0.910-0.930",
+        "price (€/L)" : 27.6,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-macadamia-aroma-zone",
+        "comment" : "Lot 2021. Change in 2023. Acides gras essentiels poly-insaturés (AGPI ou AGE) ou vitamine F : acide linoléique (oméga-6) (1.78%) Acides gras mono-insaturés (AGMI) : acide oléique (oméga-9) (59.68%), acide palmitoléique (16.04%)  Acides gras saturés (AGS) : acide palmitique (8.71%), acide stéarique (2.82%)",
+        "saponification": {
+            "SAP-value": "185-195"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 8.71,
+            "Stearic": 2.82,
+            "Ricinoleic": 0.0,
+            "Oleic": 59.68,
+            "Linoleic": 1.78,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE NOIX DU BRÉSIL BIO (lot 21HV0194)",
+        "available" : false,
+        "density" : "0.90-0.90",
+        "price (€/L)" : 75.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-noix-du-bresil-bio-aroma-zone",
+        "comment" : "Lot 2021. Change in 2023. Acides gras essentiels poly-insaturés (AGPI ou AGE) ou vitamine F : acide linoléique (oméga-6) (44.82%) Acides gras mono-insaturés (AGMI) : acide oléique (oméga-9) (32.40%) Acides gras saturés (AGS) : acide palmitique (14.79%), acide stéarique (7.70%)",
+        "saponification": {
+            "SAP-value": "192-202"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 14.79,
+            "Stearic": 7.7,
+            "Ricinoleic": 0.0,
+            "Oleic": 32.40,
+            "Linoleic": 44.82,
+            "Linolenic": 0.0
+        }
+    },
+    {
+        "name": "HUILE VÉGÉTALE DE GERMES DE BLÉ (lot 22HV0068)",
+        "available" : true,
+        "density" : "0.920-0.933",
+        "price (€/L)" : 66.0,
+        "source" : "https://www.aroma-zone.com/info/fiche-technique/huile-vegetale-germes-de-ble-aroma-zone",
+        "comment" : "Lot 2022. Acides gras essentiels poly-insaturés (AGPI ou AGE) ou vitamine F : acide linoléique (oméga-6) (58.00%), acide linolénique (5.62%) Acides gras mono-insaturés (AGMI) : acide oléique (oméga-9) (16.61%) Acides gras saturés (AGS) : acide palmitique (16.11%)",
+        "saponification": {
+            "SAP-value": "192-202"
+        },
+        "fatty-acid-composition": {
+            "Lauric": 0.0,
+            "Myristic": 0.0,
+            "Palmitic": 16.0,
+            "Stearic": 0.0,
+            "Ricinoleic": 0.0,
+            "Oleic": 16.61,
+            "Linoleic": 58.0,
+            "Linolenic": 5.62
         }
     }
 ]
