@@ -1,5 +1,9 @@
+
 # Place holder
 function soapykey(v::V)::K where {K,V} end
+soapykey(k::Int)::String = "$(k)"
+
+Base.show(io::IO, d::SoapyDict) = Base.show(io, d.map)
 
 mutable struct SoapyDict{K,V} <: AbstractDict{K,V}
     values::Vector{V}
@@ -14,18 +18,15 @@ mutable struct SoapyDict{K,V} <: AbstractDict{K,V}
     end
 end
 
-isempty(t::SoapyDict) = (length(t.map) == 0)
-length(t::SoapyDict) = length(t.map)
+Base.isempty(t::SoapyDict) = (Base.length(t.map) == 0)
+Base.length(t::SoapyDict) = Base.length(t.map)
 
 
-function iterate(d::SoapyDict{K,V}) where {K, V}
+#function iterate(d::SoapyDict{K,V}) where {K, V}
     
-end
+#end
 
-soapykey(k::Int)::String = "$(k)"
 
-#Base.show(io::IO, d::SoapyDict) = Base.show(io, d.map)
 
 d = SoapyDict{String,Int}([1,2,5,9,8,7,11])
 println(d)
-println(length(d.map))
