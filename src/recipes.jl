@@ -17,7 +17,7 @@ mutable struct RecipeOptions
         return new(
                 oils,
                 1000.0,
-                Dict((q => (0.0 => 1000.0) for q in qualities())),
+                Dict((q => (0.0 => 10000.0) for q in qualities())),
                 1 => length(oils),
                 30.0,
                 5.0,
@@ -120,7 +120,9 @@ function find_recipe(r::RecipeOptions)::Recipe
     #---------------------------
 
     # Binary constraints
-    @constraint(recipe, c_oil_taken, v_is_oil_present .>= (v_oil_amounts / soap_weight) .* oil_availabilities)
+    @constraint(recipe, c_oil_taken_up, v_is_oil_present .>= (v_oil_amounts / soap_weight))
+    @constraint(recipe, c_oil_taken_down, v_is_oil_present .<= oil_availabilities)
+    
     # When a oil is taken, it should represent at least 3% of the total soap
     # This is usefull when min number of oil is >= 1, so the solveur does not put 0.0g of some oils in the mix
     #@constraint(recipe, c_oil_taken_min_amount, v_oil_amounts .>= 0.03 * soap_weight * v_is_oil_present)
