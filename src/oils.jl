@@ -1,11 +1,26 @@
 using JSON
-
-#include("structs.jl")
-
-export load_oils
-
+using DataClasses
 
 OILS_DIR = joinpath(@__DIR__, "..", "data")
+
+mutable struct Range{T<:Number} 
+    lb::T
+    ub::T
+end
+
+# Operator to easily define value ranges
+(..)(lb::T, ub::T) where T <: Number = Range(lb, ub)
+
+# Quality value target windows with recommended default values
+@mutable_dataclass TargetQualities{T<:Number} begin
+    Hardness::Range{T} = 29.0..54.0
+    Cleansing::Range{T} = 12.0..22.0
+    Conditioning::Range{T} = 44.0..69.0
+    Bubbly::Range{T} = 14.0..46.0
+    Creamy::Range{T} = 16.0..48.0
+    Iodine::Range{T} = 41.0..70.0
+    INS::Range{T} = 136.0..170.0
+end
 
 @enum FattyAcid begin
     Lauric = 1	 
