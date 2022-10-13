@@ -3,13 +3,10 @@ using DataClasses
 
 OILS_DIR = joinpath(@__DIR__, "..", "data")
 
-mutable struct Range{T<:Number} 
-    lb::T
-    ub::T
-end
-
+# Range is a pair
+const Range{T} = Pair{T, T}
 # Operator to easily define value ranges
-(..)(lb::T, ub::T) where T <: Number = Range(lb, ub)
+(..)(lb::T, ub::T) where T <: Number = Range{T}(lb, ub)
 
 # Quality value target windows with recommended default values
 @mutable_dataclass TargetQualities{T<:Number} begin
@@ -43,6 +40,7 @@ end
     INS
 end
 
+# TODO : use fieldnames ?
 FATTY_ACIDS = Dict(zip([string(i) for i in instances(FattyAcid)], [Int64(i) for i in instances(FattyAcid)]))
 QUALITIES = Dict(zip([string(i) for i in instances(Quality)], [Int64(i) for i in instances(Quality)]))
 
@@ -104,10 +102,11 @@ QUALITY_MATRIX = [
 
 # https://www.fromnaturewithlove.com/resources/sapon.asp
 # http://www.certified-lye.com/lye-soap.html#:~:text=Because%20the%20water%20is%20used,of%20lye%20from%20the%20result
-mutable struct Oil
+@dataclass Oil begin
+    # name of the oil
     name::String
-    # Saponification index
-    sap::Pair{Int64, Int64}
+    # Saponification index range
+    sap::Range{Int64}
     # Saponification index when using Lye
     sap_naoh::Float64
     # When using KOH
@@ -180,7 +179,7 @@ function load_oils(oil_database::String)::Vector{Oil}
         push!(oils, 
             Oil(
                 o["name"], 
-                Pair{UInt64, UInt64}(parse(Int64, __sap[1]), parse(Int64, __sap[2])),
+                parse(Int64, __sap[1])..parse(Int64, __sap[2]),
                 __naoh,
                 __koh,
                 __iodine,
