@@ -19,6 +19,17 @@ const Range{T} = Pair{T, T}
     INS::Range{T} = 136.0..170.0
 end
 
+@dataclass FattyAcids{T<:Number} begin
+    Lauric::T = 0.0
+    Myristic::T = 0.0
+    Palmitic::T = 0.0
+    Stearic::T = 0.0
+    Ricinoleic::T = 0.0
+    Oleic::T = 0.0
+    Linoleic::T = 0.0
+    Linolenic::T = 0.0
+end
+
 @enum FattyAcid begin
     Lauric = 1	 
     Myristic 
