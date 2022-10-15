@@ -1,7 +1,7 @@
 using Soapy
 
 # Make a soap with most commun oils
-opt = Soapy.RecipeOptions("oils_aromazone.json")
+opt = Soapy.default_options("oils_aromazone.json")
 # Make a 1kg soap
 opt.target_weight = 500.0
 # Use recommended qualities for a balanced soap

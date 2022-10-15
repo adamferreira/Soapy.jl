@@ -1,9 +1,10 @@
 using JuMP, GLPK
 # using Ipopt
+using DataClasses
 
 include("oils.jl")
 
-mutable struct RecipeOptions
+@mutable_dataclass RecipeOptions begin
     # List of oil to consided for the soap
     oils::Vector{Oil} = []
     # in gram
@@ -18,23 +19,19 @@ mutable struct RecipeOptions
         Iodine = 41.0..70.0,
         INS = 136.0..170.0
     )
-    target_number_of_oils::Pair{Int64, Int64}
-    lye_concentration_percent::Float64 # Lye percent of water + lye solution
-    super_fat_percent::Float64 # In percent of total fat
-    fragrance_percent::Float64 # Ratio total fat (usally 3-4% of total fat weight)
+    # Min and Max number of different oils to use in the mix
+    target_number_of_oils::Range{Int64} = 0..0
+    # Lye percent of water + lye solution
+    lye_concentration_percent::Float64 = 30.0
+    # In percent of total fat
+    super_fat_percent::Float64 = 5.0
+    # Ratio total fat (usally 3-4% of total fat weight)
+    fragrance_percent::Float64 = 4.0
+end
 
-    function RecipeOptions(oil_database::String)
-        oils = load_oils(oil_database) 
-        return new(
-                oils,
-                1000.0,
-                Dict((q => (0.0 => 10000.0) for q in qualities())),
-                1 => length(oils),
-                30.0,
-                5.0,
-                4.0
-            )
-    end
+function default_options(oil_database::String)::RecipeOptions
+    oils = load_oils(oil_database)
+    return RecipeOptions(oils = oils, target_number_of_oils = 1..length(oils))
 end
 
 mutable struct Recipe
@@ -46,13 +43,16 @@ mutable struct Recipe
     oil_amount::Float64
     water_amount::Float64
     lye_amount::Float64
-    # In €/kg
+    # Prices are in €/kg
     oils_prices::Vector{Float64}
     soap_price::Float64
+    # TODO remove and use range qualities in option
     qualities::Vector{Float64}
     recommended_qualities_target::Vector{Float64}
     recommended_qualities_min::Vector{Float64}
     recommended_qualities_max::Vector{Float64}
+    # New Value
+    _quatities::Qualities{Float64}
     score::Float64
     function Recipe() return new() end
 end

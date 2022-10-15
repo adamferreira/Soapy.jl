@@ -8,6 +8,10 @@ const Range{T} = Pair{T, T}
 # Operator to easily define value ranges
 (..)(lb::T, ub::T) where T <: Number = Range{T}(lb, ub)
 
+function midpoint(x::Range{T})::Float64 where T <: Number
+    return 0.5 * (x.first + x.second)
+end
+
 @mutable_dataclass Qualities{T} begin
     Hardness::T
     Cleansing::T
@@ -40,8 +44,6 @@ end
 # Oleic         No          No          No      No      Yes
 # Linoleic      No          No          No      No      Yes
 # Linolenic     No          No          No      No      Yes
-
-
 # http://soapcalc.net/info/SoapQualities.asp
 # Fatty acids do NOT contribute to Iodine and INS, those are calculated before hands
 # Iodine        No          No          No      No      No
@@ -94,7 +96,7 @@ function naoh(oil::Oil)
     if oil.sap_naoh != 0.0
         return oil.sap_naoh
     else
-        return ((oil.sap.first + oil.sap.second) / 2.0) / 1402.50       
+        return midpoint(oil.sap) / 1402.50       
     end
 end
 
@@ -103,7 +105,7 @@ function koh(oil::Oil)
     if oil.sap_koh != 0.0
         return oil.sap_koh
     else
-        return ((oil.sap.first + oil.sap.second) / 2.0) / 1000.0       
+        return midpoint(oil.sap) / 1000.0       
     end
 end
 
@@ -131,7 +133,7 @@ function load_oils(oil_database::String)::Vector{Oil}
         __density = 0.0
         if haskey(o, "density")
             d = split(o["density"], "-")
-            __density = (parse(Float64, d[1]) + parse(Float64, d[2])) / 2.0
+            __density = midpoint(parse(Float64, d[1]..parse(Float64, d[2])))
         end
         push!(oils, 
             Oil(
