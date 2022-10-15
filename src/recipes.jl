@@ -4,9 +4,20 @@ using JuMP, GLPK
 include("oils.jl")
 
 mutable struct RecipeOptions
-    oils::Vector{Oil}
-    target_weight::Float64 # in gram
-    target_qualities::Dict{String, Pair{Float64, Float64}}
+    # List of oil to consided for the soap
+    oils::Vector{Oil} = []
+    # in gram
+    target_weight::Float64 = 1000.0
+    # Quality value target windows with recommended default values
+    target_qualities::Qualities{Range{Float64}} = Qualities{Range{Float64}}(
+        Hardness = 29.0..54.0,
+        Cleansing = 2.0..22.0,
+        Conditioning = 44.0..69.0,
+        Bubbly = 14.0..46.0,
+        Creamy = 16.0..48.0,
+        Iodine = 41.0..70.0,
+        INS = 136.0..170.0
+    )
     target_number_of_oils::Pair{Int64, Int64}
     lye_concentration_percent::Float64 # Lye percent of water + lye solution
     super_fat_percent::Float64 # In percent of total fat
@@ -72,12 +83,20 @@ function find_recipe(r::RecipeOptions)::Recipe
 
     println("Mixing $(r.target_number_of_oils.first) to $(r.target_number_of_oils.second) oils together out of $(length(r.oils))")
     println("Will keep soap mass at $(r.target_weight)g ")
+
+
     # --------------------------
-    # Sets
+    # Sets (values)
+    #---------------------------   
+    sv_qualities = [field for field in fieldnames(Qualities)]
+    sv_fatty_acids = [field for field in fieldnames(FattyAcids)]
+
+    # --------------------------
+    # Sets (indexes)
     #---------------------------   
     s_oils_set = 1:length(r.oils)
-    s_qualtities_set = 1:length(QUALITIES)
-    s_fatty_acids_set = 1:length(FATTY_ACIDS)
+    s_qualtities_set = 1:length(sv_qualities)
+    s_fatty_acids_set = 1:length(sv_fatty_acids)
 
 
     # --------------------------

@@ -8,15 +8,14 @@ const Range{T} = Pair{T, T}
 # Operator to easily define value ranges
 (..)(lb::T, ub::T) where T <: Number = Range{T}(lb, ub)
 
-# Quality value target windows with recommended default values
-@mutable_dataclass TargetQualities{T<:Number} begin
-    Hardness::Range{T} = 29.0..54.0
-    Cleansing::Range{T} = 12.0..22.0
-    Conditioning::Range{T} = 44.0..69.0
-    Bubbly::Range{T} = 14.0..46.0
-    Creamy::Range{T} = 16.0..48.0
-    Iodine::Range{T} = 41.0..70.0
-    INS::Range{T} = 136.0..170.0
+@mutable_dataclass Qualities{T} begin
+    Hardness::T
+    Cleansing::T
+    Conditioning::T
+    Bubbly::T
+    Creamy::T
+    Iodine::T
+    INS::T
 end
 
 @dataclass FattyAcids{T<:Number} begin
@@ -28,59 +27,6 @@ end
     Oleic::T = 0.0
     Linoleic::T = 0.0
     Linolenic::T = 0.0
-end
-
-@enum FattyAcid begin
-    Lauric = 1	 
-    Myristic 
-    Palmitic
-    Stearic
-    Ricinoleic
-    Oleic
-    Linoleic
-    Linolenic
-end
-
-@enum Quality begin
-    Hardness = 1 
-    Cleansing 
-    Bubbly
-    Creamy
-    Conditioning
-    Iodine
-    INS
-end
-
-# TODO : use fieldnames ?
-FATTY_ACIDS = Dict(zip([string(i) for i in instances(FattyAcid)], [Int64(i) for i in instances(FattyAcid)]))
-QUALITIES = Dict(zip([string(i) for i in instances(Quality)], [Int64(i) for i in instances(Quality)]))
-
-function qualities()::Vector{String}
-    q = collect(keys(QUALITIES))
-    for pair in QUALITIES
-        q[pair.second] = pair.first
-    end
-    return q
-end
-
-function quality_key(quality::String)
-    return QUALITIES[quality]
-end
-
-function fa_key(fatty_acid::String)
-    return FATTY_ACIDS[fatty_acid]
-end
-
-function recommended_qualities()::Dict{String, Pair{Float64, Float64}}
-    return Dict(
-        "Hardness" => (29.0 => 54.0),
-        "Cleansing" => (12.0 => 22.0),
-        "Conditioning" => (44.0 => 69.0),
-        "Bubbly" => (14.0 => 46.0),
-        "Creamy" => (16.0 => 48.0),
-        "Iodine" => (41.0 => 70.0),
-        "INS" => (136.0 => 170.0),
-    )
 end
 
 # Matrix giving ffaty acid contribution to a soap quality
