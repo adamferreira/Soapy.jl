@@ -12,4 +12,4 @@ opt.lye_concentration_percent = 33.0
 opt.fragrance_percent = 0.0
 @time recipe = Soapy.find_recipe(opt)
 println(recipe)
-display(Soapy.plot_recipe(recipe))
+#display(Soapy.plot_recipe(recipe))

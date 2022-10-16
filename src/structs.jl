@@ -22,11 +22,6 @@ Base.isempty(t::SoapyDict) = (Base.length(t.map) == 0)
 Base.length(t::SoapyDict) = Base.length(t.map)
 
 
-#function iterate(d::SoapyDict{K,V}) where {K, V}
-    
-#end
-
-
 
 d = SoapyDict{String,Int}([1,2,5,9,8,7,11])
 println(d)

@@ -59,6 +59,26 @@ QUALITY_MATRIX = [
     [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
 ]
 
+function qualities()::Tuple{Vararg{Symbol}}
+    return fieldnames(Qualities)
+end
+
+function fatty_acids()::Tuple{Vararg{Symbol}}
+    return fieldnames(FattyAcids)
+end
+
+function recommended_qualities()::Qualities{Range{Float64}}
+    return Qualities{Range{Float64}}(
+        Hardness = 29.0..54.0,
+        Cleansing = 2.0..22.0,
+        Conditioning = 44.0..69.0,
+        Bubbly = 14.0..46.0,
+        Creamy = 16.0..48.0,
+        Iodine = 41.0..70.0,
+        INS = 136.0..170.0
+    )
+end
+
 # https://www.fromnaturewithlove.com/resources/sapon.asp
 # http://www.certified-lye.com/lye-soap.html#:~:text=Because%20the%20water%20is%20used,of%20lye%20from%20the%20result
 @dataclass Oil begin
@@ -80,14 +100,6 @@ QUALITY_MATRIX = [
     fa_composition::Dict{String, Float64}
     # Is oil available for mix
     available::Bool
-end
-
-function quality_contribution(fatty_acid::String, quality::String)::Float64
-    return QUALITY_MATRIX[FATTY_ACIDS[fatty_acid]][QUALITIES[quality]]
-end
-
-function fatty_contribution(quality::String)::Vector{Float64}
-    return [ quality_contribution(f, quality) for f in collect(keys(FATTY_ACIDS))]
 end
             
 # If noah was not found in data, compute it from sap value
@@ -133,7 +145,7 @@ function load_oils(oil_database::String)::Vector{Oil}
         __density = 0.0
         if haskey(o, "density")
             d = split(o["density"], "-")
-            __density = midpoint(parse(Float64, d[1]..parse(Float64, d[2])))
+            __density = midpoint(parse(Float64, d[1])..parse(Float64, d[2]))
         end
         push!(oils, 
             Oil(
