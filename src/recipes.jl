@@ -197,14 +197,26 @@ function find_recipe(r::RecipeOptions)::Recipe
         return sum(v_oil_amout * fatty_acid_proportions)
     end
 
-    # The quality score of an oil mix is computed as follow
-    # quality_content_of_the_mix (in grams) / total_amount_of_oils (in grams)
-    # So whe sould satisfy :
-    # min_q_target <= q_amout / fat_amount <= max_q_target
-    # min_q_target * fat_amount <= q_amout <= max_q_target * fat_amount
+    # Let Q be set the of qualities, O of oils and F of fatty acids
+    # Let C(f,q) be the matrix of fatty acids contribution to qualities for f in F, q in Q
+    # Let FA(f,o) be the proportion of fatty acid f in oil o (in % with respect to other fatty acid value)
+    # The value of a quality q in a oil o is
+    # V(q,o) = sum(f in F, 100 * FA(f,o) * C(f,q))
+    # Thus the value of a quality q in a mix of oils O is
+    # V(q) = sum(o in O, 100 * P(o) * V(q,o))
+    # Wiht P(0) = A(0) / sum(o in O, A(o)) the proportion (in %) of the oil o in the mix
+    # A(o) begin the absolute amount of oil o in the mix
+    # Thus V(q) = sum(o int O, 100 * (A(o) / sum(o in O, A(o))) * V(q,o))
+    # V(q) and A(o) are the only variables here, thus is the a quadratic equation
+    # V(q) = 1 / sum(o in O, A(o)) * sum(o int O, 100 * A(o) * V(q,o))
+    # By scaling V(q) to its per-value system we have:
+    # sum(o in O, A(o)) * V(q) = sum(o int O, 100 * A(o) * V(q,o))
+    # V(q) will be in p.u at optimality
+    # This is now a linear equation
     @constraint(recipe, c_qual_val[q = s_qualtities_set], 
         v_qualities[q] == sum([oil_quality_equation(oils[o], v_oil_amounts[o], q) for o = s_oils_set])
     )
+    # v_qualities[q] are in p.u and bounds in absolute values
     @constraint(recipe, c_qual_lb[q = s_qualtities_set], v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
     @constraint(recipe, c_qual_ub[q = s_qualtities_set], v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
 
