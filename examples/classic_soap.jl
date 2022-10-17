@@ -1,7 +1,8 @@
 using Soapy
 
+dataset = "oils_aromazone.json"
 # Make a soap with most commun oils
-opt = Soapy.default_options("oils_aromazone.json")
+opt = default_options(dataset)
 # Make a 1kg soap
 opt.target_weight = 1000.0
 # Use recommended qualities for a balanced soap 
@@ -10,6 +11,7 @@ opt.target_weight = 1000.0
 opt.super_fat_percent = 10.0
 opt.lye_concentration_percent = 33.0
 opt.fragrance_percent = 0.0
-@time recipe = Soapy.find_recipe(opt)
+@time recipe = find_recipe(opt)
 println(recipe)
-#display(Soapy.plot_recipe(recipe))
+println("Best possible Soapy score for this dataset = $(Int64(round(best_score(dataset))))")
+#display(plot_recipe(recipe))

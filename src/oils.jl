@@ -81,7 +81,7 @@ end
 
 # https://www.fromnaturewithlove.com/resources/sapon.asp
 # http://www.certified-lye.com/lye-soap.html#:~:text=Because%20the%20water%20is%20used,of%20lye%20from%20the%20result
-@dataclass Oil begin
+@mutable_dataclass Oil begin
     # name of the oil
     name::String
     # Saponification index range

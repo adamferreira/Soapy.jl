@@ -25,7 +25,7 @@ end
     # Min and Max number of different oils to use in the mix
     target_number_of_oils::Range{Int64} = 0..0
     # Lye percent of water + lye solution
-    lye_concentration_percent::Float64 = 30.0
+    lye_concentration_percent::Float64 = 33.0
     # In percent of total fat
     super_fat_percent::Float64 = 5.0
     # Ratio total fat (usally 3-4% of total fat weight)
@@ -76,6 +76,16 @@ function score(r::Recipe)::Float64
     # Soapy score out of 100
     # A negative Soapy score indicates that some qualities where not in ideal range (custom ranges)
     return 100. - penalty
+end
+
+# Best possible Soapy score of the oil database
+function best_score(oil_database::String)::Float64
+    opt = Soapy.default_options(oil_database)
+    # activate all oils in the database for the mix
+    for oil in opt.oils
+        oil.available = true
+    end
+    return score(find_recipe(opt))
 end
 
 function frangrance_amount(r::Recipe)::Float64
@@ -202,7 +212,6 @@ function find_recipe(r::RecipeOptions)::Recipe
     # Absolute deviation from (scaled) target constraint
     # Δq = Δq⁺ - Δq⁻ = v - t
     # INS and Iodine does not contribute to the overall score
-    @show [mapping_qualities[qual] for qual in setdiff(sv_qualities, (:INS, :Iodine))]
     for q = [mapping_qualities[qual] for qual in setdiff(sv_qualities, (:INS, :Iodine))]
         @constraint(recipe, v_Δq⁺[q] - v_Δq⁻[q] == v_qualities[q] - (qualities_target[q] * sum(v_oil_amounts)))
     end
@@ -222,9 +231,6 @@ function find_recipe(r::RecipeOptions)::Recipe
         println("Cannot compute a recipe satisfying your quality requirements")
         return
     end
-
-    print(recipe)
-
 
     # --------------------------
     # Results
