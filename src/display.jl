@@ -10,10 +10,10 @@ function print_ingredient(name, value, unit = "", tab_lvl = 1)
     println(tab, name, " = ", round(value, digits = 2), unit)
 end
 
-
+# TODO: Macro 'round'
 function print_recipe(r::Recipe)
     println("Soap composition : ")
-    println("\t", "Oils (", length(r.oils_in_recipe) ,") : ")
+    println("\t", "Oils ($(length(r.oils_in_recipe))) : ")
     [print_ingredient(r.options.oils[i].name, r.oil_amounts[i], "g", 2) for i = r.oils_in_recipe]
     print_ingredient("Total", r.oil_amount, "g", 2)
     print_ingredient("Water", r.water_amount, "g")
@@ -27,10 +27,9 @@ function print_recipe(r::Recipe)
     print_ingredient("Total", r.soap_weight, "g")
     println("Soap quality (Recommended) : ")
     for q in qualities()
-        q_key = quality_key(q)
-        quality_val = r.qualities[q_key]
-        recommended_min = r.recommended_qualities_min[q_key]
-        recommended_max = r.recommended_qualities_max[q_key]
+        quality_val = getfield(r.qualities, q)
+        recommended_min = first(getfield(r.options.recommended_qualities, q))
+        recommended_max = last(getfield(r.options.recommended_qualities, q))
         warning = ""
         if (quality_val > recommended_max) || (quality_val < recommended_min)
             warning = "*"

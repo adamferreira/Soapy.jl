@@ -20,6 +20,8 @@ end
     target_weight::Float64 = 1000.0
     # Quality value target windows with recommended default values
     target_qualities::Qualities{Range{Float64}} = recommended_qualities()
+    # Recommended Soapy qualities
+    recommended_qualities::Qualities{Range{Float64}} = recommended_qualities()
     # Min and Max number of different oils to use in the mix
     target_number_of_oils::Range{Int64} = 0..0
     # Lye percent of water + lye solution
@@ -51,28 +53,29 @@ end
     qualities::Qualities{Float64}
     # Soapy score
     score::Float64
-    function Recipe() return new() end
 end
 
 # The penalty score of the soap is the total absolute deviation divided by the maximum possible deviation from target
 # Scaled down to a score out of 100
 function score(r::Recipe)::Float64
-    __total_deviatation = 0.0
-    __max_deviation = 0.0
-    recommended_qualities = recommended_qualities()
-    # Total deviation is \sum abs(q-m)
-    # Max deviation is max(l-m,u-m) for each quality (not INS and iodine)
-    # TODO: Use setdiff(fieldnames(Qualities), (:INS, :Iodine))
-    for q = setdiff(qualities(), (:INS, :Iodine))
-        __total_deviatation += abs(getfield(r.qualities, q) - midpoint(getfield(recommended_qualities, q)))
-        __max_deviation += max(
-            midpoint(getfield(recommended_qualities, q)) - first(getfield(recommended_qualities, q)),
-            last(getfield(recommended_qualities, q)) - midpoint(getfield(recommended_qualities, q))
-        )
-    end
-
-    # Scale the score out of 100 points
-    return 100 - 100 * (__total_deviatation / __max_deviation)
+    # Qualities that are taken into account for the score
+    quals = setdiff(qualities(), (:INS, :Iodine))
+    # Minimal ideal targets
+    lowerbounds = [first(getfield(r.options.recommended_qualities, q)) for q in quals]
+    # Ideal targets
+    targets = [midpoint(getfield(r.options.recommended_qualities, q)) for q in quals]
+    # Actual qualities of the recipe
+    values = [getfield(r.qualities, q) for q in quals]
+    # Worst possible deviation if the qualities where all in recommended range
+    # (targets - lowerbounds == upperbounds - target)
+    max_deviations = targets - lowerbounds
+    # How far are our qualitied from the ideal target (relative in percent)
+    deviations = 100. * abs.(values - targets) ./ max_deviations
+    # Penalty is the mean of deviation vector; penalty is in [0., 100.]
+    penalty = sum(1/length(deviations) .* deviations)
+    # Soapy score out of 100
+    # A negative Soapy score indicates that some qualities where not in ideal range (custom ranges)
+    return 100. - penalty
 end
 
 function frangrance_amount(r::Recipe)::Float64
@@ -84,7 +87,7 @@ function find_recipe(r::RecipeOptions)::Recipe
 
 
     println("Mixing $(r.target_number_of_oils.first) to $(r.target_number_of_oils.second) oils together out of $(length(r.oils))")
-    println("Will keep soap mass at $(r.target_weight)g ")
+    println("Will keep soap mass at $(r.target_weight)g")
 
 
     # --------------------------
@@ -94,12 +97,13 @@ function find_recipe(r::RecipeOptions)::Recipe
     sv_fatty_acids = fatty_acids()
     mapping_qualities = index_mapping(Qualities)
     mapping_fatty_acids = index_mapping(FattyAcids)
-    recommended_q = recommended_qualities()
+    # TODO : Model only with available oils
+    oils = r.oils#[o for o in r.oils if o.available]
 
     # --------------------------
     # Sets (indexes)
     #---------------------------   
-    s_oils_set = 1:length(r.oils)
+    s_oils_set = 1:length(oils)#[i for (o,i) in zip(oils, 1:length(oils)) if o.available]
     s_qualtities_set = 1:length(sv_qualities)
     s_fatty_acids_set = 1:length(sv_fatty_acids)
 
@@ -111,17 +115,15 @@ function find_recipe(r::RecipeOptions)::Recipe
     fragrance_ratio = r.fragrance_percent / 100.0
     super_fat_ratio = r.super_fat_percent / 100.0
     lye_concentration_ratio = r.lye_concentration_percent / 100.0
-    qualities_lb = [first(getfield(r.target_qualities, q)) for q in sv_qualities]
-    qualities_ub = [last(getfield(r.target_qualities, q)) for q in sv_qualities]
+    qualities_lb = [0.0 for q in sv_qualities] #[first(getfield(r.target_qualities, q)) for q in sv_qualities]
+    qualities_ub = [10000.0 for q in sv_qualities] #[last(getfield(r.target_qualities, q)) for q in sv_qualities]
     # The targeted value of a quality is the midpoint of its recommended range
-    qualities_target = [midpoint(getfield(recommended_q, q)) for q in sv_qualities]
-    oil_availabilities = [convert(Float64, r.oils[i].available) for i in s_oils_set]
-    oils = r.oils
+    qualities_target = [midpoint(getfield(r.recommended_qualities, q)) for q in sv_qualities]
+    oil_availabilities = [convert(Float64, oils[i].available) for i in s_oils_set]
 
     # --------------------------
     # Variables
     #---------------------------
-
     # Real variables representing masses used in the recipe
     @variable(recipe, v_oil_amounts[i = s_oils_set] >= 0.0) # in grams
     @variable(recipe, v_lye_amounts[i = s_oils_set] >= 0.0) # in grams
@@ -166,8 +168,6 @@ function find_recipe(r::RecipeOptions)::Recipe
     # Constraint for total weight
     @constraint(recipe, c_total_weight, sum(v_oil_amounts) + sum(v_lye_amounts) + sum(v_water_amounts) + fragrance_ratio * sum(v_oil_amounts) == soap_weight )
 
-    # Quality constraints
-    c_qualities = Vector()
     function oil_quality_equation(oil, v_oil_amout, quality_key)
         # Iodine and INS are data and not calcutaled quatilies
         # Just give those quality a score
@@ -187,24 +187,26 @@ function find_recipe(r::RecipeOptions)::Recipe
         return sum(v_oil_amout * fatty_acid_proportions)
     end
 
-    for q = s_qualtities_set
-        quality_value_expr = sum([oil_quality_equation(oils[o], v_oil_amounts[o], q) for o = s_oils_set]) # in grams
-        # The quality score of an oil mix is computed as follow
-        # quality_content_of_the_mix (in grams) / total_amount_of_oils (in grams)
-        # So whe sould satisfy :
-        # min_q_target <= q_amout / fat_amount <= max_q_target
-        # min_q_target * fat_amount <= q_amout <= max_q_target * fat_amount
-        #push!(c_qualities, @constraint(recipe, v_qualities[q] == quality_value_expr))
-        @constraint(recipe, v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
-        @constraint(recipe, v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
-    end
+    # The quality score of an oil mix is computed as follow
+    # quality_content_of_the_mix (in grams) / total_amount_of_oils (in grams)
+    # So whe sould satisfy :
+    # min_q_target <= q_amout / fat_amount <= max_q_target
+    # min_q_target * fat_amount <= q_amout <= max_q_target * fat_amount
+    @constraint(recipe, c_qual_val[q = s_qualtities_set], 
+        v_qualities[q] == sum([oil_quality_equation(oils[o], v_oil_amounts[o], q) for o = s_oils_set])
+    )
+    @constraint(recipe, c_qual_lb[q = s_qualtities_set], v_qualities[q] >= qualities_lb[q] * sum(v_oil_amounts))
+    @constraint(recipe, c_qual_ub[q = s_qualtities_set], v_qualities[q] <= qualities_ub[q] * sum(v_oil_amounts))
+
+
     # Absolute deviation from (scaled) target constraint
     # Δq = Δq⁺ - Δq⁻ = v - t
     # INS and Iodine does not contribute to the overall score
+    @show [mapping_qualities[qual] for qual in setdiff(sv_qualities, (:INS, :Iodine))]
     for q = [mapping_qualities[qual] for qual in setdiff(sv_qualities, (:INS, :Iodine))]
         @constraint(recipe, v_Δq⁺[q] - v_Δq⁻[q] == v_qualities[q] - (qualities_target[q] * sum(v_oil_amounts)))
     end
-
+    
     # --------------------------
     # Objective
     #---------------------------
@@ -221,6 +223,8 @@ function find_recipe(r::RecipeOptions)::Recipe
         return
     end
 
+    print(recipe)
+
 
     # --------------------------
     # Results
@@ -234,6 +238,7 @@ function find_recipe(r::RecipeOptions)::Recipe
     optimized.lye_amount = sum(value.(v_lye_amounts))
     optimized.water_amount = sum(value.(v_water_amounts))
     optimized.oils_prices = [optimized.options.oils[i].price * optimized.oil_amounts[i] / 1000.0 for i = optimized.oils_in_recipe]
+    # Rescaling
     optimized.qualities ← value.(v_qualities) / optimized.oil_amount
     optimized.soap_price = sum(optimized.oils_prices) / (optimized.soap_weight / 1000.0) 
 

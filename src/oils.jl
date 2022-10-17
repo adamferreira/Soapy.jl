@@ -15,9 +15,9 @@ end
 @mutable_dataclass Qualities{T} begin
     Hardness::T
     Cleansing::T
-    Conditioning::T
     Bubbly::T
     Creamy::T
+    Conditioning::T
     Iodine::T
     INS::T
 end
@@ -56,7 +56,7 @@ QUALITY_MATRIX = [
     [0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
-    [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
 ]
 
 function qualities()::Tuple{Vararg{Symbol}}
@@ -71,9 +71,9 @@ function recommended_qualities()::Qualities{Range{Float64}}
     return Qualities{Range{Float64}}(
         Hardness = 29.0..54.0,
         Cleansing = 2.0..22.0,
-        Conditioning = 44.0..69.0,
         Bubbly = 14.0..46.0,
         Creamy = 16.0..48.0,
+        Conditioning = 44.0..69.0,
         Iodine = 41.0..70.0,
         INS = 136.0..170.0
     )

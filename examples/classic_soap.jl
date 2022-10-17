@@ -3,8 +3,8 @@ using Soapy
 # Make a soap with most commun oils
 opt = Soapy.default_options("oils_aromazone.json")
 # Make a 1kg soap
-opt.target_weight = 500.0
-# Use recommended qualities for a balanced soap
+opt.target_weight = 1000.0
+# Use recommended qualities for a balanced soap 
 #opt.target_qualities = Soapy.recommended_qualities()
 # Maximise the INS (overall) score of the soap
 opt.super_fat_percent = 10.0
