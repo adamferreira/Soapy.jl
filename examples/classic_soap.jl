@@ -4,7 +4,7 @@ dataset = "oils_aromazone.json"
 # Make a soap with most commun oils
 opt = default_options(dataset)
 # Make a 1kg soap
-opt.target_weight = 1000.0
+opt.target_weight = 500.0
 # Use recommended qualities for a balanced soap 
 #opt.target_qualities = Soapy.recommended_qualities()
 # Maximise the INS (overall) score of the soap
