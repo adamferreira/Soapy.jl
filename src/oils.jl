@@ -205,6 +205,9 @@ function load_oils(oil_database::String)::DataFrame
             __density = midpoint(parse(Float64, d[1])..parse(Float64, d[2]))
         end
         __fa_compositon = Dict(map(fa -> fa => 0.0, FATTY_ACIDS))
+        for (fa, val) in o["fatty-acid-composition"]
+            __fa_compositon[Symbol(fa)] = val
+        end
 
         push!(oils, 
             Oil(
@@ -215,7 +218,6 @@ function load_oils(oil_database::String)::DataFrame
                 __iodine,
                 __ins,
                 __price_liter * __density,
-                #o["fatty-acid-composition"],
                 __fa_compositon,
                 __available
             )
