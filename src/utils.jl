@@ -1,6 +1,9 @@
 # Data dir
 DATADIR = joinpath(@__DIR__, "..", "data")
 
+# A tabular data is eiter an object T, or a dataframe representation of a collection of T
+const TabularData{T} = Union{T, DataFrame}
+
 # Range is a pair
 const Range{T} = Pair{T, T}
 # Operator to easily define value ranges
@@ -31,4 +34,12 @@ function to_df(objs::AbstractVector{T})::DataFrame where {T}
     end
     
     return df
+end
+
+function to_df(x::T)::DataFrame where {T}
+    return to_df([x])
+end
+
+function to_df(x::DataFrame)::DataFrame
+    return x
 end

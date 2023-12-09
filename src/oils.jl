@@ -93,7 +93,7 @@ QUALITIES = [
     :INS
 ]
 
-struct Qualities{T}
+mutable struct Qualities{T}
     Hardness::T
     Cleansing::T
     Bubbly::T
@@ -101,6 +101,23 @@ struct Qualities{T}
     Conditioning::T
     Iodine::T
     INS::T
+end
+
+mutable struct FattyAcids{T}
+    Caprylic::T
+    Capric::T
+    Lauric::T
+    Myristic::T
+    Palmitic::T
+    Stearic::T
+    Arachidic::T
+    Behenic::T
+    Lignoceric::T
+    Cerotic::T
+    Ricinoleic::T
+    Oleic::T
+    Linoleic::T
+    Linolenic::T
 end
 
 
@@ -140,12 +157,14 @@ QUALITY_MATRIX = Dict(
     :Arachidic =>  Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
     :Behenic =>    Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
     :Lignoceric => Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
+    :Cerotic =>    Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
     :Ricinoleic => Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>1.0, :Creamy=>1.0, :Conditioning=>1.0, :Iodine=>0.0, :INS=>0.0),
     :Oleic =>      Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>1.0, :Iodine=>0.0, :INS=>0.0),
     :Linoleic =>   Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>1.0, :Iodine=>0.0, :INS=>0.0),
     :Linolenic =>  Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>1.0, :Iodine=>0.0, :INS=>0.0)
 )
 
+"""
 recommended_qualities()::Dict{Symbol, Range{Float}} = Dict{Symbol, Range{Float}}(
     :Hardness => 29.0..54.0,
     :Cleansing => 2.0..22.0,
@@ -155,10 +174,24 @@ recommended_qualities()::Dict{Symbol, Range{Float}} = Dict{Symbol, Range{Float}}
     :Iodine => 41.0..70.0,
     :INS => 136.0..170.0
 )
+"""
+function recommended_qualities()::Qualities{Range{Float64}}
+    return Qualities{Range{Float64}}(
+        29.0..54.0,
+        2.0..22.0,
+        14.0..46.0,
+        16.0..48.0,
+        44.0..69.0,
+        41.0..70.0,
+        136.0..170.0
+    )
+end
 
 # https://www.fromnaturewithlove.com/resources/sapon.asp
 # http://www.certified-lye.com/lye-soap.html#:~:text=Because%20the%20water%20is%20used,of%20lye%20from%20the%20result
 struct Oil
+    # Oil unique id
+    uid::UInt
     # name of the oil
     name::String
     # Saponification index range
@@ -180,8 +213,28 @@ struct Oil
 end
 
 function load_oils(oil_database::String)::DataFrame
+    uid_cpt = UInt(1)
 
-    function default_value(d, k, default = 0.0 )
+    # If noah was not found in data, compute it from sap value
+    # Source : https://www.fromnaturewithlove.com/resources/sapon.asp  
+    function naoh(sap, sap_naoh)
+        if sap_naoh != 0.0
+            return sap_naoh
+        else
+            return midpoint(sap) / 1402.50       
+        end
+    end
+
+    # Same goes for KOH
+    function koh(sap, sap_koh)
+        if sap_koh != 0.0
+            return sap_koh
+        else
+            return midpoint(sap) / 1000.0       
+        end
+    end
+
+    function default_value(d, k, default = 0.0)
         return haskey(d, k) ? d[k] : default
     end
 
@@ -209,12 +262,15 @@ function load_oils(oil_database::String)::DataFrame
             __fa_compositon[Symbol(fa)] = val
         end
 
+        __sap = parse(Int64, __sap[1])..parse(Int64, __sap[2])
+
         push!(oils, 
             Oil(
+                uid_cpt,
                 o["name"], 
-                parse(Int64, __sap[1])..parse(Int64, __sap[2]),
-                __naoh,
-                __koh,
+                __sap,
+                naoh(__sap, __naoh),
+                koh(__sap, __koh),
                 __iodine,
                 __ins,
                 __price_liter * __density,
@@ -222,6 +278,7 @@ function load_oils(oil_database::String)::DataFrame
                 __available
             )
         )
+        uid_cpt += 1
     end
     return to_df(oils)
 end
