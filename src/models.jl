@@ -3,8 +3,8 @@ using JuMP, GLPK
 mutable struct RecipeOptions
     # in gram
     target_weight::Float64
-    # Quality value target windows with recommended default values
-    target_qualities::Qualities{Range{Float64}}
+    # Quality value restriction windows
+    quality_restriction::Qualities{Range{Float64}}
     # Min and Max number of different oils to use in the mix
     target_number_of_oils::Range{Int64}
     # Lye percent of water + lye solution
@@ -13,6 +13,8 @@ mutable struct RecipeOptions
     super_fat_percent::Float64
     # Ratio total fat (usally 3-4% of total fat weight)
     fragrance_percent::Float64
+    # Price range of the Soap (in €/Kg)
+    price_range::Range{Float64}
 end
 
 function default_options()::RecipeOptions
@@ -22,13 +24,15 @@ function default_options()::RecipeOptions
         # target_qualities,
         recommended_qualities(),
         # target_number_of_oils,
-        1..4,
+        1..1000,
         # lye_concentration_percent
         33.0,
         # super_fat_percent,
         5.0,
         # fragrance_percent
-        4.0
+        4.0,
+        # price_range
+        0.0..100.0
     )
 end
 
@@ -51,11 +55,39 @@ struct Recipe
 end
 
 
+# The penalty score of the soap is the total absolute deviation divided by the maximum possible deviation from recommended quality values
+# Scaled down to a score out of 100
+function score(r::Recipe)::Float64
+    # Qualities that are taken into account for the score
+    quals = setdiff(qualities(), (:INS, :Iodine))
+    recommended = recommended_qualities()
+    # Minimal ideal targets
+    lowerbounds = [first(getfield(recommended, q)) for q in quals]
+    # Ideal targets
+    targets = [midpoint(getfield(recommended, q)) for q in quals]
+    # Actual qualities of the recipe
+    values = [getfield(r.qualities, q) for q in quals]
+    # Worst possible deviation if the qualities where all in recommended range
+    # (targets - lowerbounds == upperbounds - target)
+    max_deviations = targets - lowerbounds
+    # How far are our qualitied from the ideal target (relative in percent)
+    deviations = 100. * abs.(values - targets) ./ max_deviations
+    # Penalty is the mean of deviation vector; penalty is in [0., 100.]
+    penalty = sum(1/length(deviations) .* deviations)
+    # Soapy score out of 100
+    # A negative Soapy score indicates that some qualities where not in ideal range (custom ranges)
+    return 100. - penalty
+end
 
-function solve(oils::TabularData{Oil}, options::RecipeOptions)::Recipe
+
+function solve(
+    oils::TabularData{Oil},
+    options::RecipeOptions;
+)::Recipe
     recipe = Model(GLPK.Optimizer)
+    oils_df_raw = to_df(oils)
     oils_df::DataFrame = sort(
-        filter(row -> row.available, to_df(oils)),
+        filter(row -> row.available, oils_df_raw),
         :uid, rev=true
     )
 
@@ -63,8 +95,8 @@ function solve(oils::TabularData{Oil}, options::RecipeOptions)::Recipe
     # Sets (values)
     #---------------------------
     # Index to Symbol   
-    sv_qualities::Vector{Symbol} = collect(fieldnames(Qualities))
-    sv_fatty_acids::Vector{Symbol} = collect(fieldnames(FattyAcids))
+    sv_qualities = qualities()
+    sv_fatty_acids = fattyacids()
 
     # --------------------------
     # Sets (indexes)
@@ -77,11 +109,13 @@ function solve(oils::TabularData{Oil}, options::RecipeOptions)::Recipe
     # Constants
     #---------------------------   
     soap_weight = options.target_weight
+    min_price = options.price_range.first
+    max_price = options.price_range.second
     fragrance_ratio = options.fragrance_percent / 100.0
     super_fat_ratio = options.super_fat_percent / 100.0
     lye_concentration_ratio = options.lye_concentration_percent / 100.0
-    qualities_lb = zeros(length(sv_qualities))
-    qualities_ub = 10000 .+ qualities_lb
+    qualities_lb = [getfield(options.quality_restriction, sv_qualities[i]).first for i in s_qualtities_set]
+    qualities_ub = [getfield(options.quality_restriction, sv_qualities[i]).second for i in s_qualtities_set]
     # Matrix fa_composition[i,j]
     # Proportion of fatty acid j in oil i
     fa_composition = zeros(size(oils_df)[1], length(sv_fatty_acids))
@@ -99,7 +133,7 @@ function solve(oils::TabularData{Oil}, options::RecipeOptions)::Recipe
         end
     end
     # The targeted value of a quality is the midpoint of its recommended range
-    qualities_target = [midpoint(getfield(options.target_qualities, q)) for q in sv_qualities]
+    qualities_target = [midpoint(getfield(options.quality_restriction, q)) for q in sv_qualities]
 
     # --------------------------
     # Variables
@@ -123,9 +157,9 @@ function solve(oils::TabularData{Oil}, options::RecipeOptions)::Recipe
     # Binary constraints
     @constraint(recipe, c_oil_taken_up, v_is_oil_present .>= (v_oil_amounts / soap_weight))
 
-    # When a oil is taken, it should represent at least 3% of the total soap
+    # When a oil is taken, it should represent at least x% of the total soap
     # This is usefull when min number of oil is >= 1, so the solveur does not put 0.0g of some oils in the mix
-    #@constraint(recipe, c_oil_taken_min_amount, v_oil_amounts .>= 0.03 * soap_weight * v_is_oil_present)
+    @constraint(recipe, c_oil_taken_min_amount, v_oil_amounts .>= 0.1 .* soap_weight .* v_is_oil_present)
 
     # Number of different oils in the mix is within range
     @constraint(recipe, c_max_oils, options.target_number_of_oils.first <= sum(v_is_oil_present) <= options.target_number_of_oils.second)
@@ -139,9 +173,11 @@ function solve(oils::TabularData{Oil}, options::RecipeOptions)::Recipe
     @constraint(recipe, c_total_lye_amount[i = s_oils_set], v_lye_amounts .== v_oil_amounts .* oils_df[!, :sap_naoh] .* (1.0 - super_fat_ratio))
     # Lye amounts calculation
     @constraint(recipe, c_total_water_amount, v_water_amounts .== (v_lye_amounts / lye_concentration_ratio) .- v_lye_amounts) # means water to lye ratio = 2.3333:1
-
     # Constraint for total weight
-    @constraint(recipe, c_total_weight, sum(v_oil_amounts) + sum(v_lye_amounts) + sum(v_water_amounts) + fragrance_ratio * sum(v_oil_amounts) == soap_weight)
+    @constraint(recipe, c_total_weight, sum(v_oil_amounts) + sum(v_lye_amounts) + sum(v_water_amounts) + (fragrance_ratio * sum(v_oil_amounts)) == soap_weight)
+    # Constraint for price range
+    soap_price = sum((v_oil_amounts / 1000.0) .* oils_df[!, :price])
+    @constraint(recipe, c_price_range, min_price <= soap_price <= max_price)
 
     function oil_quality_equation(oil_key, v_oil_amout, quality_key)
         # Iodine and INS are data and not calcutaled quatilies
@@ -188,18 +224,16 @@ function solve(oils::TabularData{Oil}, options::RecipeOptions)::Recipe
     # Absolute deviation from (scaled) target constraint
     # Δq = Δq⁺ - Δq⁻ = v - t
     # INS and Iodine does not contribute to the overall score
-    for q in s_qualtities_set
-        @constraint(recipe, v_Δq⁺[q] - v_Δq⁻[q] == v_qualities[q] - (qualities_target[q] * sum(v_oil_amounts)))
-    end
+    @constraint(recipe, c_qual_dev[q = s_qualtities_set], v_Δq⁺[q] - v_Δq⁻[q] == v_qualities[q] - (qualities_target[q] * sum(v_oil_amounts)))
     
 
     # --------------------------
     # Objective
     #---------------------------
-    # Maximise INS score
-    #@objective(recipe, Max, v_qualities[quality_key(quality_to_optimize)])
     # Minimize total target deviation
     @objective(recipe, Min, sum(v_Δq⁺ + v_Δq⁻))
+    # Minimize price
+    #@objective(recipe, Min, soap_price)
 
     # Solve the problem
     try
@@ -218,7 +252,7 @@ function solve(oils::TabularData{Oil}, options::RecipeOptions)::Recipe
     lye_amount = sum(value.(v_lye_amounts))
     frangrance_amount = options.fragrance_percent * 0.01 * sum(oil_amounts)
     return Recipe(
-        oils_df,
+        oils_df_raw,
         options,
         soap_weight,
         oil_uids,

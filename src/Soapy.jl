@@ -2,6 +2,7 @@ module Soapy
 
 using DataFrames
 using JSON
+using Printf
 
 include("utils.jl")
 export TabularData, Range, .., to_df

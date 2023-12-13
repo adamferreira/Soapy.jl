@@ -60,39 +60,6 @@ Creamy lather	16 to 48
 Iodine	41 to 70 (lower = harder bar)
 INS	136 to 170 (higher = harder bar)
 """
-
-SATURATED_FAT = [
-    :Caprylic,
-    :Capric,
-    :Lauric,
-    :Myristic,
-    :Palmitic,
-    :Stearic,
-    :Arachidic,
-    :Behenic,
-    :Lignoceric,
-    :Cerotic
-]
-# https://en.wikipedia.org/wiki/List_of_unsaturated_fatty_acids
-UNSATURATED_FAT = [
-    :Ricinoleic,
-    :Oleic,
-    :Linoleic,
-    :Linolenic
-]
-
-FATTY_ACIDS = vcat(SATURATED_FAT, UNSATURATED_FAT)
-
-QUALITIES = [
-    :Hardness,
-    :Cleansing,
-    :Bubbly,
-    :Creamy,
-    :Conditioning,
-    :Iodine,
-    :INS
-]
-
 mutable struct Qualities{T}
     Hardness::T
     Cleansing::T
@@ -104,6 +71,7 @@ mutable struct Qualities{T}
 end
 
 mutable struct FattyAcids{T}
+    # Saturated fat
     Caprylic::T
     Capric::T
     Lauric::T
@@ -114,10 +82,21 @@ mutable struct FattyAcids{T}
     Behenic::T
     Lignoceric::T
     Cerotic::T
+    # Unsaturated fat
+    # https://en.wikipedia.org/wiki/List_of_unsaturated_fatty_acids
     Ricinoleic::T
     Oleic::T
     Linoleic::T
     Linolenic::T
+end
+
+function qualities()
+    #return setdiff(fieldnames(Qualities), (:INS, :Iodine))
+    return fieldnames(Qualities)
+end
+
+function fattyacids()
+    return fieldnames(FattyAcids)
 end
 
 
@@ -148,9 +127,9 @@ end
 # ]
 # TODO: Fill with 0 and add only ones (sparse)
 QUALITY_MATRIX = Dict(
-    :Caprylic =>   Dict(:Hardness=>1.0, :Cleansing=>1.0, :Bubbly=>1.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
+    :Caprylic =>   Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
     :Capric =>     Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
-    :Lauric =>     Dict(:Hardness=>0.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
+    :Lauric =>     Dict(:Hardness=>1.0, :Cleansing=>1.0, :Bubbly=>1.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
     :Myristic =>   Dict(:Hardness=>1.0, :Cleansing=>1.0, :Bubbly=>1.0, :Creamy=>0.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
     :Palmitic =>   Dict(:Hardness=>1.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>1.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
     :Stearic =>    Dict(:Hardness=>1.0, :Cleansing=>0.0, :Bubbly=>0.0, :Creamy=>1.0, :Conditioning=>0.0, :Iodine=>0.0, :INS=>0.0),
@@ -257,7 +236,7 @@ function load_oils(oil_database::String)::DataFrame
             d = split(o["density"], "-")
             __density = midpoint(parse(Float64, d[1])..parse(Float64, d[2]))
         end
-        __fa_compositon = Dict(map(fa -> fa => 0.0, FATTY_ACIDS))
+        __fa_compositon = Dict(map(fa -> fa => 0.0, fieldnames(FattyAcids)))
         for (fa, val) in o["fatty-acid-composition"]
             __fa_compositon[Symbol(fa)] = val
         end

@@ -3,10 +3,10 @@ function print_ingredient(name, value, unit = "", tab_lvl = 1)
     if tab_lvl > 0
         tab = join(["" for i = 0:tab_lvl], "\t")
     end
-    println(tab, name, " = ", round(value, digits = 2), unit)
+    @printf("%s%s = %.2f%s\n", tab, name, value, unit)
 end
 
-# TODO: Macro 'round'
+
 function print_recipe(r::Recipe)
     oil_names = r.oils[r.oil_uids, :name]
     nb_oils = length(r.oil_amounts)
@@ -23,7 +23,7 @@ function print_recipe(r::Recipe)
     print_ingredient("Super Fat", r.options.super_fat_percent, "%")
     print_ingredient("Total", r.soap_weight, "g")
     println("Soap quality (Recommended) : ")
-    for q in fieldnames(Qualities)
+    for q in qualities()
         quality_val = getfield(r.qualities, q)
         recommended_min = first(getfield(recommended, q))
         recommended_max = last(getfield(recommended, q))
@@ -31,9 +31,10 @@ function print_recipe(r::Recipe)
         if (quality_val > recommended_max) || (quality_val < recommended_min)
             warning = "*"
         end
-        println("\t", q, " = ", Int64(round(quality_val)), " (", Int64(recommended_min), ", ", Int64(recommended_max) ,")", warning)
+        @printf("\t%s = %.2f (%d, %d)%s\n", q, quality_val, recommended_min, recommended_max, warning)
     end
-    println("Total estimated cost of the soap = $(Int64(round(soap_price)))€/Kg")
+    @printf("Total estimated cost of the soap = %.2f€/Kg\n", soap_price)
+    @printf("Soapy score = %.2f/100\n", score(r))
 end
 
 Base.show(io::IO, r::Recipe) = print_recipe(r)
